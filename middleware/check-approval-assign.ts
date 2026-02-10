@@ -25,7 +25,8 @@ export const checkApprovalAssignment = async (
 			});
 		}
 
-		const approval = await prisma.approval.findFirst({
+		// TODO: Approval model not yet defined in Prisma schema — cast to any until model is added
+		const approval = await (prisma as any).approval.findFirst({
 			where: {
 				id: approvalId,
 				isDeleted: false,

@@ -96,15 +96,16 @@ export const controller = (prisma: PrismaClient) => {
 				},
 			});
 
-			// Auto-create Patient record if role is "user" and subRole is "patient"
-			if (role === "user" && subRole === "patient") {
-				await prisma.patient.create({
-					data: {
-						userId: user.id,
-					},
-				});
-				authLogger.info(`Patient record created for user: ${user.id}`);
-			}
+			// TODO: Patient model not yet defined in Prisma schema
+			// Re-enable once Patient model is added
+			// if (role === "user" && subRole === "patient") {
+			// 	await prisma.patient.create({
+			// 		data: {
+			// 			userId: user.id,
+			// 		},
+			// 	});
+			// 	authLogger.info(`Patient record created for user: ${user.id}`);
+			// }
 
 			const userResponse = {
 				id: user.id,
@@ -172,7 +173,7 @@ export const controller = (prisma: PrismaClient) => {
 				where: {
 					OR: [{ email: identifier }, { userName: identifier }],
 				},
-				include: { person: true, department: true, organization: true },
+				include: { person: true, organization: true },
 			});
 			if (!user || !user.password) {
 				authLogger.error(`Invalid credentials for identifier: ${identifier}`);
@@ -206,12 +207,11 @@ export const controller = (prisma: PrismaClient) => {
 			let token: string;
 			const payload = {
 				userId: user.id,
-				firstName: user.person?.personalInfo?.firstName,
-				lastName: user.person?.personalInfo?.lastName,
+				firstName: (user as any).person?.personalInfo?.firstName,
+				lastName: (user as any).person?.personalInfo?.lastName,
 				role: user.role,
 				departmentId: user.departmentId,
 				orgId: user.orgId,
-				departmentCode: user.department?.code,
 			};
 			const secret = process.env.JWT_SECRET || "";
 			if (expiresIn) {

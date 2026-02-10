@@ -404,7 +404,6 @@ export const controller = (prisma: PrismaClient) => {
 				},
 				include: {
 					person: true,
-					department: true,
 				},
 			});
 
