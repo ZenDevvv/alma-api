@@ -114,7 +114,7 @@ type PersonalInfo {
   lastName     String
   middleName   String?
   nameSuffix   String? // Jr., Sr., III, etc.
-  dateOfBirth  DateTime
+  dateOfBirth  DateTime?
   placeOfBirth String? // City/Country of birth
   gender       Gender?
   nationality  String?

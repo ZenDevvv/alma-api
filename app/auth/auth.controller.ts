@@ -21,7 +21,7 @@ export const controller = (prisma: PrismaClient) => {
 
 			if (!validationResult.success) {
 				console.log("this is the error", validationResult.error);
-				const formattedErrors = formatZodErrors(validationResult.error.format());
+				const formattedErrors = formatZodErrors(validationResult.error);
 				authLogger.error(`Validation failed: ${JSON.stringify(formattedErrors)}`);
 
 				const errorResponse = buildErrorResponse("Validation failed", 400, formattedErrors);

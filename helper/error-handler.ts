@@ -34,15 +34,10 @@ export interface ErrorDetail {
 }
 
 export function formatZodErrors(zodError: any): ErrorDetail[] {
-	if (!zodError) return [];
+	if (!zodError || !zodError.issues) return [];
 
-	const formattedErrors = zodError; // Expecting zodError to be the result of error.format()
-
-	return Object.entries(formattedErrors)
-		.filter(([field]) => field !== "_errors") // Exclude top-level _errors
-		.map(([field, error]: [string, any]) => ({
-			field,
-			message: error._errors?.[0] || "Validation error",
-		}))
-		.filter((error) => error.message !== "Validation error"); // Filter out generic errors
+	return zodError.issues.map((issue: any) => ({
+		field: issue.path.join("."),
+		message: issue.message,
+	}));
 }
