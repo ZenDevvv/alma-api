@@ -14,12 +14,12 @@ import {
 
 export const RegisterPersonSchema = z.object({
 	personalInfo: PersonalInfoSchema,
-	contactInfo: z.array(ContactSchema).optional().nullable(),
-	addresses: z.array(AddressSchema).optional().nullable(),
-	languages: z.array(LanguageSchema).optional().nullable(),
-	preferredLanguage: z.string().optional().nullable(),
+	contactInfo: z.array(ContactSchema).optional(),
+	addresses: z.array(AddressSchema).optional(),
+	languages: z.array(LanguageSchema).optional(),
+	preferredLanguage: z.string().optional(),
 	documents: DocumentsSchema,
-	emergencyContacts: z.array(EmergencyContactSchema).optional().nullable(),
+	emergencyContacts: z.array(EmergencyContactSchema).optional(),
 	kycStatus: KYCStatus.default("PENDING").optional(),
 });
 

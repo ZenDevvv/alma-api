@@ -96,7 +96,7 @@ export const AddressSchema = z.object({
 	postalCode: z.string().min(1, "Postal code is required"),
 	isPrimary: z.boolean().default(false),
 	isVerified: z.boolean().default(false),
-	instructions: z.string().optional().nullable(),
+	instructions: z.string().optional(),
 });
 
 export const LanguageSchema = z.object({
@@ -118,21 +118,21 @@ export const EmergencyContactSchema = z.object({
 		.string()
 		.regex(/^[+]?[0-9()\-\s]+$/, "Invalid alternate phone format")
 		.optional()
-		.nullable(),
-	email: z.string().email("Invalid email").optional().nullable(),
-	address: z.string().optional().nullable(),
+		,
+	email: z.string().email("Invalid email").optional(),
+	address: z.string().optional(),
 	priority: z.number().int().positive().default(1),
-	notes: z.string().optional().nullable(),
+	notes: z.string().optional(),
 });
 
 export const DocumentsSchema = z
 	.object({
-		passportNumber: z.string().optional().nullable(),
-		driverLicense: z.string().optional().nullable(),
-		socialSecurityNumber: z.string().optional().nullable(),
+		passportNumber: z.string().optional(),
+		driverLicense: z.string().optional(),
+		socialSecurityNumber: z.string().optional(),
 	})
 	.optional()
-	.nullable();
+	;
 
 // ─── Person Model Schema ────────────────────────────────────────────
 
@@ -142,17 +142,17 @@ export const PersonSchema = z.object({
 	contactInfo: z.array(ContactSchema),
 	addresses: z.array(AddressSchema),
 	languages: z.array(LanguageSchema),
-	preferredLanguage: z.string().optional().nullable(),
+	preferredLanguage: z.string().optional(),
 	documents: DocumentsSchema,
 	emergencyContacts: z.array(EmergencyContactSchema),
 	kycStatus: KYCStatus.default("PENDING"),
-	kycCompletedAt: z.coerce.date().optional().nullable(),
-	lastVerifiedAt: z.coerce.date().optional().nullable(),
+	kycCompletedAt: z.coerce.date().optional(),
+	lastVerifiedAt: z.coerce.date().optional(),
 	orgId: z
 		.string()
 		.refine((val) => isValidObjectId(val))
 		.optional()
-		.nullable(),
+		,
 	createdAt: z.coerce.date(),
 	updatedAt: z.coerce.date(),
 });
