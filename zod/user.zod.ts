@@ -5,13 +5,9 @@ import { isValidObjectId } from "mongoose";
 export const Role = z.enum(["user", "admin", "viewer"]);
 
 export const SubRole = z.enum([
-	"super",
-	"supervisor",
-	"approver",
-	"staff",
-	"operator",
-	"malasakit",
-	"patient",
+	"learner",
+	"instructor",
+	"org_admin",
 ]);
 
 export const Status = z.enum(["active", "inactive", "suspended", "archived"]);
@@ -27,7 +23,7 @@ export const UserSchema = z.object({
 	avatar: z.string().optional(),
 	userName: z.string().optional(),
 	email: z.string().min(1),
-	password: z.string().optional(),
+	password: z.string(),
 	role: Role,
 	subRole: SubRole.optional(),
 	status: Status.default("active"),
@@ -36,12 +32,7 @@ export const UserSchema = z.object({
 	loginMethod: z.string().min(1),
 	createdAt: z.coerce.date(),
 	updatedAt: z.coerce.date(),
-	departmentId: z
-		.string()
-		.refine((val) => isValidObjectId(val))
-		.nullable()
-		.optional(),
-	locationId: z
+	orgId: z
 		.string()
 		.refine((val) => isValidObjectId(val))
 		.nullable()
@@ -61,8 +52,6 @@ export const CreateUserSchema = UserSchema.omit({
 	isDeleted: true,
 	lastLogin: true,
 	personId: true,
-	departmentId: true,
-	locationId: true,
 });
 
 export type CreateUser = z.infer<typeof CreateUserSchema>;
