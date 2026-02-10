@@ -26,6 +26,7 @@ model User {
   orgId        String?       @db.ObjectId
   organization Organization? @relation(fields: [orgId], references: [id])
 
+
   personId String?  @unique @db.ObjectId
   person   Person?  @relation(fields: [personId], references: [id], onDelete: Cascade)
 
@@ -42,8 +43,12 @@ enum Role {
 }
 
 enum SubRole {
-  learner
-  instructor
-  org_admin
+  patient
+  staff
+  approver
+  malasakit
+  operator
+  supervisor
+  super
 }
 

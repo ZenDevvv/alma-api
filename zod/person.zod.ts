@@ -1,146 +1,187 @@
 import { z } from "zod";
 import { isValidObjectId } from "mongoose";
 
-// GenderType Enum
+// ─── Enums matching Prisma ───────────────────────────────────────────
+
 export const GenderType = z.enum([
-	"male",
-	"female",
-	"other",
-	"prefer_not_to_say",
-	"unknown",
-	"not_applicable",
+	"MALE",
+	"FEMALE",
+	"NON_BINARY",
+	"TRANSGENDER",
+	"INTERSEX",
+	"AGENDER",
+	"PANGENDER",
+	"GENDER_FLUID",
+	"TWO_SPIRIT",
+	"OTHER",
+	"PREFER_NOT_TO_SAY",
 ]);
 
-export const PhoneType = z.enum([
-	"mobile",
-	"home",
-	"work",
-	"emergency",
-	"fax",
-	"pager",
-	"main",
-	"other",
+export const ContactType = z.enum([
+	"MOBILE",
+	"HOME",
+	"WORK",
+	"ALTERNATE",
+	"FAX",
+	"WHATSAPP",
+	"TELEGRAM",
+	"EMERGENCY",
+	"OTHER",
 ]);
 
-export const IdentificationType = z.enum([
-	"passport",
-	"drivers_license",
-	"national_id",
-	"postal_id",
-	"voters_id",
-	"senior_citizen_id",
-	"company_id",
-	"school_id",
+export const AddressType = z.enum([
+	"PRIMARY",
+	"BILLING",
+	"MAILING",
+	"WORK",
+	"TEMPORARY",
+	"PREVIOUS",
+	"OTHER",
 ]);
+
+export const LanguageProficiency = z.enum([
+	"NATIVE",
+	"FLUENT",
+	"ADVANCED",
+	"INTERMEDIATE",
+	"BASIC",
+]);
+
+export const KYCStatus = z.enum([
+	"PENDING",
+	"IN_REVIEW",
+	"APPROVED",
+	"REJECTED",
+	"EXPIRED",
+	"RESUBMISSION_REQUIRED",
+]);
+
+// ─── Composite Type Schemas (matching Prisma types) ─────────────────
 
 export const PersonalInfoSchema = z.object({
-	prefix: z.string().optional(),
-	firstName: z.string().min(1),
-	middleName: z.string().optional(),
-	lastName: z.string().min(1),
-	dateOfBirth: z.coerce.date().optional(),
-	placeOfBirth: z.string().optional(),
-	age: z.number().int().optional(),
-	nationality: z.string().optional(),
-	primaryLanguage: z.string().optional(),
-	gender: z
-		.enum(["male", "female", "other", "prefer_not_to_say", "unknown", "not_applicable"])
-		.optional(),
-	currency: z.string().optional(),
-	vipCode: z.string().optional(),
+	firstName: z.string().min(1, "First name is required"),
+	lastName: z.string().min(1, "Last name is required"),
+	middleName: z.string().optional().nullable(),
+	nameSuffix: z.string().optional().nullable(),
+	dateOfBirth: z.string().datetime("Invalid date format"),
+	placeOfBirth: z.string().optional().nullable(),
+	gender: GenderType.optional().nullable(),
+	nationality: z.string().optional().nullable(),
+	height: z.number().optional().nullable(),
+	weight: z.number().optional().nullable(),
 });
 
-export const PhoneSchema = z.object({
-	type: z
-		.enum(["mobile", "home", "work", "emergency", "fax", "pager", "main", "other"])
-		.optional(),
-	countryCode: z.string().optional(),
-	number: z.string().optional(),
-	isPrimary: z.boolean().optional(),
+export const ContactSchema = z.object({
+	type: ContactType,
+	phoneNumber: z.string().optional().nullable(),
+	email: z.string().email("Invalid email").optional().nullable(),
+	countryCode: z.string().optional().nullable(),
+	isPrimary: z.boolean().default(false),
+	isVerified: z.boolean().default(false),
+	label: z.string().optional().nullable(),
 });
 
-export const ContactAddressSchema = z.object({
-	street: z.string().optional(),
-	address2: z.string().optional(),
-	city: z.string().optional(),
-	state: z.string().optional(),
-	country: z.string().optional(),
-	postalCode: z.string().optional(),
-	zipCode: z.string().optional(),
-	houseNumber: z.string().optional(),
+export const AddressSchema = z.object({
+	type: AddressType.default("PRIMARY"),
+	label: z.string().optional().nullable(),
+	addressLine1: z.string().min(1, "Address line 1 is required"),
+	addressLine2: z.string().optional().nullable(),
+	street: z.string().optional().nullable(),
+	building: z.string().optional().nullable(),
+	unit: z.string().optional().nullable(),
+	city: z.string().min(1, "City is required"),
+	district: z.string().optional().nullable(),
+	state: z.string().min(1, "State is required"),
+	country: z.string().min(1, "Country is required"),
+	postalCode: z.string().min(1, "Postal code is required"),
+	isPrimary: z.boolean().default(false),
+	isVerified: z.boolean().default(false),
+	instructions: z.string().optional().nullable(),
 });
 
-export const ContactInfoSchema = z.object({
-	email: z.string().optional(),
-	phones: z.array(PhoneSchema).optional(),
-	fax: z.string().optional(),
-	address: z.union([ContactAddressSchema, z.array(ContactAddressSchema)]).optional(),
+export const LanguageSchema = z.object({
+	languageCode: z.string().min(2, "Language code is required (ISO 639-1)"),
+	languageName: z.string().min(1, "Language name is required"),
+	proficiency: LanguageProficiency,
+	isNative: z.boolean().default(false),
 });
 
-export const IdentificationSchema = z.object({
-	type: z
-		.enum([
-			"passport",
-			"drivers_license",
-			"national_id",
-			"postal_id",
-			"voters_id",
-			"senior_citizen_id",
-			"company_id",
-			"school_id",
-		])
-		.optional(),
-	number: z.string().optional(),
-	issuingCountry: z.string().optional(),
-	expiryDate: z.coerce.date().optional(),
-});
-
-export const MetadataSchema = z.object({
-	isActive: z.boolean(),
-	status: z.string().optional(),
-	createdBy: z
+export const EmergencyContactSchema = z.object({
+	firstName: z.string().min(1, "First name is required"),
+	lastName: z.string().min(1, "Last name is required"),
+	relationship: z.string().min(1, "Relationship is required"),
+	phoneNumber: z
 		.string()
-		.refine((val) => isValidObjectId(val))
-		.optional(),
-	updatedBy: z
+		.min(10, "Phone number must be valid")
+		.regex(/^[+]?[0-9()\-\s]+$/, "Invalid phone number format"),
+	alternatePhone: z
 		.string()
-		.refine((val) => isValidObjectId(val))
-		.optional(),
-	lastLoginAt: z.coerce.date().optional(),
-	isDeleted: z.boolean(),
+		.regex(/^[+]?[0-9()\-\s]+$/, "Invalid alternate phone format")
+		.optional()
+		.nullable(),
+	email: z.string().email("Invalid email").optional().nullable(),
+	address: z.string().optional().nullable(),
+	priority: z.number().int().positive().default(1),
+	notes: z.string().optional().nullable(),
 });
+
+export const DocumentsSchema = z
+	.object({
+		passportNumber: z.string().optional().nullable(),
+		driverLicense: z.string().optional().nullable(),
+		socialSecurityNumber: z.string().optional().nullable(),
+	})
+	.optional()
+	.nullable();
+
+// ─── Person Model Schema ────────────────────────────────────────────
 
 export const PersonSchema = z.object({
 	id: z.string().refine((val) => isValidObjectId(val)),
-	organizationId: z
+	personalInfo: PersonalInfoSchema,
+	contactInfo: z.array(ContactSchema),
+	addresses: z.array(AddressSchema),
+	languages: z.array(LanguageSchema),
+	preferredLanguage: z.string().optional().nullable(),
+	documents: DocumentsSchema,
+	emergencyContacts: z.array(EmergencyContactSchema),
+	kycStatus: KYCStatus.default("PENDING"),
+	kycCompletedAt: z.coerce.date().optional().nullable(),
+	lastVerifiedAt: z.coerce.date().optional().nullable(),
+	orgId: z
 		.string()
 		.refine((val) => isValidObjectId(val))
-		.optional(),
-	personalInfo: PersonalInfoSchema.optional(),
-	contactInfo: ContactInfoSchema,
-	identification: IdentificationSchema.optional(),
-	metadata: MetadataSchema.optional(),
+		.optional()
+		.nullable(),
 	createdAt: z.coerce.date(),
 	updatedAt: z.coerce.date(),
-	isDeleted: z.boolean(),
 });
+
+export type Person = z.infer<typeof PersonSchema>;
 
 export const CreatePersonSchema = PersonSchema.omit({
 	id: true,
 	createdAt: true,
 	updatedAt: true,
+	kycCompletedAt: true,
+	lastVerifiedAt: true,
 }).partial({
-	organizationId: true,
-	personalInfo: true,
 	contactInfo: true,
-	identification: true,
-	metadata: true,
-	isDeleted: true,
+	addresses: true,
+	languages: true,
+	preferredLanguage: true,
+	documents: true,
+	emergencyContacts: true,
+	kycStatus: true,
+	orgId: true,
 });
+
+export type CreatePerson = z.infer<typeof CreatePersonSchema>;
 
 export const UpdatePersonSchema = PersonSchema.omit({
 	id: true,
 	createdAt: true,
 	updatedAt: true,
-	isDeleted: true,
 }).partial();
+
+export type UpdatePerson = z.infer<typeof UpdatePersonSchema>;

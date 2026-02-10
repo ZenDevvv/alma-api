@@ -295,7 +295,7 @@ export const controller = (prisma: PrismaClient) => {
 			const newPerson = await prisma.person.create({
 				data: {
 					personalInfo: personalInfoForPrisma,
-					documents: validatedData.identification as any,
+					documents: validatedData.documents as any,
 				},
 			});
 
@@ -443,8 +443,8 @@ export const controller = (prisma: PrismaClient) => {
 					...(updatePersonalInfo && {
 						personalInfo: updatePersonalInfo as any,
 					}),
-					...(validatedData.identification && {
-						documents: validatedData.identification as any,
+					...(validatedData.documents && {
+						documents: validatedData.documents as any,
 					}),
 				},
 			});

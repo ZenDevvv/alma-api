@@ -36,7 +36,6 @@ export const controller = (prisma: PrismaClient) => {
 				role,
 				subRole,
 				orgId,
-				departmentId,
 				personalInfo,
 				contactInfo,
 				addresses,
@@ -91,21 +90,10 @@ export const controller = (prisma: PrismaClient) => {
 					role: role,
 					personId: person.id,
 					...(orgId ? { orgId } : {}),
-					...(departmentId ? { departmentId } : {}),
 					...(subRole ? { subRole } : {}),
 				},
 			});
 
-			// TODO: Patient model not yet defined in Prisma schema
-			// Re-enable once Patient model is added
-			// if (role === "user" && subRole === "patient") {
-			// 	await prisma.patient.create({
-			// 		data: {
-			// 			userId: user.id,
-			// 		},
-			// 	});
-			// 	authLogger.info(`Patient record created for user: ${user.id}`);
-			// }
 
 			const userResponse = {
 				id: user.id,
@@ -210,7 +198,6 @@ export const controller = (prisma: PrismaClient) => {
 				firstName: (user as any).person?.personalInfo?.firstName,
 				lastName: (user as any).person?.personalInfo?.lastName,
 				role: user.role,
-				departmentId: user.departmentId,
 				orgId: user.orgId,
 			};
 			const secret = process.env.JWT_SECRET || "";
@@ -246,7 +233,6 @@ export const controller = (prisma: PrismaClient) => {
 				userId: user.id,
 				action: "LOGIN",
 				description: `User ${identifier} logged in`,
-				departmentId: user.departmentId ?? undefined,
 				page: { url: req.originalUrl, title: "Login Page" },
 			});
 		} catch (error: any) {

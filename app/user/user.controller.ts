@@ -51,10 +51,8 @@ export const controller = (prisma: PrismaClient) => {
 
 		try {
 			// Transform null values to undefined for Prisma compatibility
-			const prismaData = {
+			const prismaData: Prisma.UserUncheckedCreateInput = {
 				...validation.data,
-				departmentId: validation.data.departmentId ?? undefined,
-				locationId: validation.data.locationId ?? undefined,
 			};
 
 			const user = await prisma.user.create({ data: prismaData });
