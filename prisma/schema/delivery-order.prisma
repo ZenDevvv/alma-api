@@ -1,0 +1,71 @@
+enum OrderStatus {
+  in_transit
+  delivered
+}
+
+enum OrderType {
+  with_request
+  without_request
+}
+
+enum SourceType {
+  department
+  supplier
+}
+
+model DeliveryOrder {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  type        OrderType @default(with_request)
+  orderNumber String
+  sequence    Int
+  year        Int
+
+  deliveryRequestId String?          @db.ObjectId
+  deliveryRequest   DeliveryRequest? @relation("RequestToOrders", fields: [deliveryRequestId], references: [id])
+
+  sourceId   String     @db.ObjectId
+  sourceType SourceType
+
+  status OrderStatus @default(in_transit)
+
+  requiredByDate       DateTime?
+  expectedDeliveryDate DateTime?
+  actualDeliveryDate   DateTime?
+
+  purpose             String?
+  notes               String?
+  specialInstructions String?
+  rejectionReason     String?
+
+  items OrderItem[]
+
+  preparedById String?   @db.ObjectId
+  preparedBy   User?     @relation("PreparedDeliveries", fields: [preparedById], references: [id])
+  preparedAt   DateTime?
+
+  dispatchedById String?   @db.ObjectId
+  dispatchedBy   User?     @relation("DispatchedDeliveries", fields: [dispatchedById], references: [id])
+  dispatchedAt   DateTime?
+
+  deliveryReceipts DeliveryReceipt[]
+
+  destinationId String     @db.ObjectId
+  destination   Department @relation("DestinationDeliveries", fields: [destinationId], references: [id])
+
+  // Organization
+  orgId        String?       @db.ObjectId
+  organization Organization? @relation(fields: [orgId], references: [id])
+
+  isActive  Boolean  @default(true)
+  isDeleted Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([sourceId])
+  @@index([status])
+  @@index([year])
+  @@index([sequence])
+  @@index([orgId])
+  @@map("delivery-orders")
+}

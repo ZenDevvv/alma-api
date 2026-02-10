@@ -1,0 +1,70 @@
+enum Status {
+  active // Available for use/dispensing
+  inactive // Temporarily unavailable
+  discontinued // No longer carried
+  critical
+}
+
+enum UnitOfMeasure {
+  tablet
+  capsule
+  piece
+  box
+  bottle
+  vial
+  pack
+  tube
+  strip
+  carton
+  bag
+  unit
+}
+
+model Product {
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  description   String?
+  gtin          String?       @unique // GS1 GTIN (Global Trade Item Number)
+  sku           String?       @unique
+  unitOfMeasure UnitOfMeasure // e.g. "piece", "box"
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  status        Status
+
+  categoryId String   @db.ObjectId
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  productTypeId String      @db.ObjectId
+  productType   ProductType @relation(fields: [productTypeId], references: [id])
+
+  requiresPrescription Boolean @default(false)
+
+  storageRequirement String
+  reorderLevel       Int
+  maxStockLevel      Int
+
+  srp Float?
+
+  supplierItem     SupplierItem[]
+  transactionItems TransactionItem[]
+  deliveryItem     RequestItem[]
+  stocks           StockItem[]
+  orderItems       OrderItem[]
+  StockRecord      StockRecord[]
+
+  medicines Medicine[]
+
+  isDeleted Boolean @default(false)
+
+  @@index([name])
+  @@index([isDeleted])
+  @@index([unitOfMeasure])
+  @@index([createdAt])
+  @@index([name, isDeleted])
+  @@index([unitOfMeasure, isDeleted])
+  @@map("products")
+}
+
+// requestItems        RequestItem[]
+
+// inventoryRecords    InventoryRecord[]

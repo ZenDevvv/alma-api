@@ -1,0 +1,17 @@
+model Price {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  unitPrice Float
+
+  requestedTotalPrice Float
+  approvedTotalPrice  Float
+  deliveredTotalPrice Float
+
+  asp Float @default(0)
+  srp Float @default(0)
+
+  isDeleted Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("Prices")
+}

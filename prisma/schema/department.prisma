@@ -1,0 +1,36 @@
+model Department {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  code          String
+  address       String?
+  city          String?
+  state         String?
+  country       String?
+  postalCode    String?
+  contactPerson String?
+  contactPhone  String?
+  contactEmail  String?
+  isActive      Boolean  @default(true)
+  isDeleted     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Existing relations
+  transactionsTo Transaction[] @relation("TransactionDestination")
+  StockRecord    StockRecord[]
+  members        User[]
+
+  orgId        String?       @db.ObjectId
+  organization Organization? @relation(fields: [orgId], references: [id])
+
+  // New delivery relations
+  batches                 Batch[]
+  sourceDeliveriesRequest DeliveryRequest[] @relation("SourceDeliveries")
+
+  destinationDeliveriesRequest DeliveryRequest[] @relation("DestinationDeliveries")
+  destinationDeliveryOrder     DeliveryOrder[]   @relation("DestinationDeliveries")
+
+  @@unique([orgId, code], name: "orgId_code")
+  @@index([isActive])
+  @@map("departments")
+}

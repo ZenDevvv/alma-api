@@ -1,0 +1,15 @@
+model SupplierItem {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  supplierId String   @db.ObjectId
+  supplier   Supplier @relation(fields: [supplierId], references: [id])
+
+  productId String  @db.ObjectId
+  product   Product @relation(fields: [productId], references: [id])
+
+  isDeleted Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("Supplier_Items")
+}

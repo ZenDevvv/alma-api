@@ -1,0 +1,145 @@
+enum Gender {
+  MALE
+  FEMALE
+  NON_BINARY
+  TRANSGENDER
+  INTERSEX
+  AGENDER
+  PANGENDER
+  GENDER_FLUID
+  TWO_SPIRIT
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+enum ContactType {
+  MOBILE
+  HOME
+  WORK
+  ALTERNATE
+  FAX
+  WHATSAPP
+  TELEGRAM
+  EMERGENCY
+  OTHER
+}
+
+enum AddressType {
+  PRIMARY
+  BILLING
+  MAILING
+  WORK
+  TEMPORARY
+  PREVIOUS
+  OTHER
+}
+
+enum LanguageProficiency {
+  NATIVE
+  FLUENT
+  ADVANCED
+  INTERMEDIATE
+  BASIC
+}
+
+enum KYCStatus {
+  PENDING
+  IN_REVIEW
+  APPROVED
+  REJECTED
+  EXPIRED
+  RESUBMISSION_REQUIRED
+}
+
+type Contact {
+  type        ContactType
+  phoneNumber String?
+  email       String?
+  countryCode String? // +1, +44, +63, etc.
+  isPrimary   Boolean     @default(false)
+  isVerified  Boolean     @default(false)
+  label       String? // Custom label
+}
+
+type Address {
+  type  AddressType @default(PRIMARY)
+  label String? // Custom label
+
+  // Address Components
+  addressLine1 String
+  addressLine2 String?
+  street       String?
+  building     String?
+  unit         String?
+
+  // Location
+  city       String
+  district   String? // County/District/Borough
+  state      String
+  country    String
+  postalCode String
+
+  // Geolocation
+  // coordinates  Coordinates?
+
+  // Metadata
+  isPrimary  Boolean @default(false)
+  isVerified Boolean @default(false)
+
+  // Delivery Instructions
+  instructions String?
+}
+
+type Language {
+  languageCode String // ISO 639-1: en, es, fr, zh, etc.
+  languageName String // English, Spanish, French, etc.
+  proficiency  LanguageProficiency
+  isNative     Boolean             @default(false)
+}
+
+type EmergencyContact {
+  firstName      String
+  lastName       String
+  relationship   String // Mother, Father, Spouse, Sibling, Friend, etc.
+  phoneNumber    String
+  alternatePhone String?
+  email          String?
+  address        String?
+  priority       Int     @default(1) // 1 = primary, 2 = secondary, etc.
+  notes          String?
+}
+
+type PersonalInfo {
+  firstName    String
+  lastName     String
+  middleName   String?
+  nameSuffix   String? // Jr., Sr., III, etc.
+  dateOfBirth  DateTime
+  placeOfBirth String? // City/Country of birth
+  gender       Gender?
+  nationality  String?
+  height       Float? // in cm
+  weight       Float?
+}
+
+model Person {
+  id               String          @id @default(auto()) @map("_id") @db.ObjectId
+  personalInfo       PersonalInfo      // in kg
+  contactInfo         Contact[]       // Array for multiple phones/emails
+  addresses        Address[]       // Primary, billing, mailing, etc.
+  languages        Language[]      // Languages spoken
+  preferredLanguage String?        // ISO code: en, es, fr, etc.
+  documents Json?
+  emergencyContacts EmergencyContact[]
+  kycStatus         KYCStatus          @default(PENDING)
+  kycCompletedAt    DateTime?
+  user              User?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  lastVerifiedAt    DateTime?
+
+  orgId        String?       @db.ObjectId
+  organization Organization? @relation(fields: [orgId], references: [id])
+
+  @@map("persons")
+}

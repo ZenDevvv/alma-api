@@ -1,0 +1,97 @@
+enum DeliveryStatus {
+  // Request statuses
+  draft
+  new
+  for_approval
+
+  // Common statuses
+  in_progress
+  approved
+  pending
+  partially_delivered
+  rejected
+  delivered
+  completed
+  cancelled
+}
+
+enum priorityLevel {
+  urgent
+  high
+  normal
+  low
+}
+
+model DeliveryRequest {
+  id            String @id @default(auto()) @map("_id") @db.ObjectId
+  requestNumber String
+  sequence      Int
+  year          Int
+
+
+  approval  Approval? @relation("RequestApprovals")
+
+  // Source and Destination
+  sourceId String?     @db.ObjectId
+  source   Department? @relation("SourceDeliveries", fields: [sourceId], references: [id])
+
+  supplierId String?   @db.ObjectId
+  supplier   Supplier? @relation("SupplierDeliveries", fields: [supplierId], references: [id])
+
+  destinationId String     @db.ObjectId
+  destination   Department @relation("DestinationDeliveries", fields: [destinationId], references: [id])
+
+  // Status and Priority
+  status   DeliveryStatus @default(new)
+  priority priorityLevel?
+
+  // Dates
+  requestedDate        DateTime  @default(now())
+  requiredByDate       DateTime?
+  expectedDeliveryDate DateTime?
+  actualDeliveryDate   DateTime?
+
+  // Purpose and Notes
+  purpose             String?
+  notes               String?
+  specialInstructions String?
+  rejectionReason     String?
+
+  // Items
+  items RequestItem[]
+
+  // User Actions
+  requestedById String @db.ObjectId
+  requestedBy   User   @relation("RequestedDeliveries", fields: [requestedById], references: [id])
+
+  approvedById String?   @db.ObjectId
+  approvedBy   User?     @relation("ApprovedDeliveries", fields: [approvedById], references: [id])
+  approvedAt   DateTime?
+
+  rejectedById String?   @db.ObjectId
+  rejectedBy   User?     @relation("RejectedDeliveries", fields: [rejectedById], references: [id])
+  rejectedAt   DateTime?
+
+  // Relations
+  deliveryReceipts DeliveryReceipt[]
+  deliveryOrders   DeliveryOrder[]   @relation("RequestToOrders")
+
+  // Organization
+  orgId        String?       @db.ObjectId
+  organization Organization? @relation(fields: [orgId], references: [id])
+
+  // Metadata
+  isActive  Boolean  @default(true)
+  isDeleted Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([sourceId])
+  @@index([destinationId])
+  @@index([status])
+  @@index([requestedDate])
+  @@index([year])
+  @@index([sequence])
+  @@index([orgId])
+  @@map("delivery-request")
+}

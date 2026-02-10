@@ -1,0 +1,39 @@
+enum DeliveryItemStatus {
+  pending
+  packed
+  delivered
+  partial
+}
+
+model RequestItem {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  requestId String?          @db.ObjectId
+  request   DeliveryRequest? @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  // One-to-one relation with DeliveryOrderItem (back-relation MUST be optional)
+  orderItem OrderItem[]
+
+  productId String  @db.ObjectId
+  product   Product @relation(fields: [productId], references: [id])
+
+  requestedQuantity Int  @default(0)
+  approvedQuantity  Int? @default(0)
+  deliveredQuantity Int? @default(0)
+
+  notes String?
+
+  itemStatus DeliveryItemStatus?
+
+  batchNumber   String? // For items that have batch/lot numbers
+  expiryDate    DateTime? // For perishable items
+  serialNumbers String[] // For serialized items
+
+  isDeleted Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([requestId])
+  @@index([productId])
+  @@map("delivery_items")
+}

@@ -1,0 +1,29 @@
+model OrderItem {
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  quantity Int
+  notes    String?
+
+  productId String?  @db.ObjectId
+  product   Product? @relation(fields: [productId], references: [id])
+
+  batchNumber String?
+
+  orderId String?        @db.ObjectId
+  order   DeliveryOrder? @relation(fields: [orderId], references: [id])
+
+  batchId String? @db.ObjectId
+  batch   Batch?  @relation(fields: [batchId], references: [id])
+
+  requestItemId String?      @db.ObjectId
+  requestItem   RequestItem? @relation(fields: [requestItemId], references: [id])
+
+  deliveryReceipt ReceiptItem[]
+
+  asp Float?
+
+  expiryDate DateTime? // For perishable items
+
+  isDeleted Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

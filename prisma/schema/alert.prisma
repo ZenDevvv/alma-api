@@ -1,0 +1,52 @@
+enum AlertSeverity {
+  critical
+  warning
+  low_stock
+}
+
+// Alert Type Enum
+enum AlertType {
+  stock_critical
+  expiry_warning
+  low_stock
+  other
+}
+
+// Main Alert Model
+model Alert {
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  productName String
+  dosage      String?
+  severity    AlertSeverity
+  alertType   AlertType
+  message     String?
+
+  // Product Details
+  sku          String
+  batch        String?
+  batchId      String?
+  currentStock Int?
+  minRequired  Int?
+  expiryDate   DateTime?
+
+  // Metadata
+  isDeleted  Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  resolvedAt DateTime?
+  isResolved Boolean   @default(false)
+
+  // Relationships
+  userId String? @db.ObjectId // Optional: link to user who created/manages alerts
+
+  // Additional fields
+  actionTaken String? // e.g., "Reordered", "Acknowledged"
+  notes       String?
+
+  @@index([sku])
+  @@index([severity])
+  @@index([alertType])
+  @@index([isResolved])
+  @@index([createdAt])
+  @@fulltext([productName, sku]) // For full-text search
+}

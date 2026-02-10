@@ -1,0 +1,20 @@
+model Batch {
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  departmentId String     @db.ObjectId
+  department   Department @relation(fields: [departmentId], references: [id])
+
+  batchNumber  String   @unique
+  receivedAt   DateTime @default(now())
+  receivedById String?  @db.ObjectId
+
+  deliveryItems OrderItem[]
+  stocks        StockItem[]
+
+  date DateTime?
+
+  isDeleted Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([receivedById])
+}

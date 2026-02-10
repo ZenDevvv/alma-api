@@ -1,0 +1,62 @@
+enum LogLevel {
+  TRACE
+  DEBUG
+  INFO
+  WARN
+  ERROR
+  FATAL
+}
+
+enum LogStatus {
+  UNRESOLVED
+  INVESTIGATING
+  RESOLVED
+  IGNORED
+}
+
+model SystemLog {
+  id        String   @id @default(cuid()) @map("_id")
+  timestamp DateTime @default(now())
+  level     LogLevel
+  message   String?
+  // Source: Where the log originated from
+  // Examples: "UserService", "PaymentAPI", "AuthMiddleware", "DatabaseConnection"
+  source    String
+
+  // Entity: What the log is about (the subject/resource)
+  // Examples: "User:123", "Order:456", "Payment:789", "Session:abc"
+  entity     String?
+  entityType String? // e.g., "User", "Order", "Payment", "Session"
+  entityId   String? // The actual ID of the entity
+
+  // Request context
+  requestId      String?
+  sessionId      String?
+  ipAddress      String?
+  requestMethod  String? // GET, POST, PUT, DELETE, etc.
+  requestPath    String?
+  requestBody    String?
+  responseStatus Int?
+  responseTime   Int? // Response time in milliseconds
+
+  // Error specific fields
+  errorCode  String?
+  errorType  String? // Exception type/class name
+  stackTrace String?
+
+  // Additional data stored as JSON
+  metadata Json? // Flexible field for any additional data
+
+  // Alerting
+  alertSent  Boolean   @default(false)
+  // Retention & archival
+  archived   Boolean   @default(false)
+  isDeleted  Boolean   @default(false)
+  archivedAt DateTime?
+  expiresAt  DateTime? // For automatic cleanup
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("system_logs")
+}

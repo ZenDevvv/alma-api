@@ -1,0 +1,25 @@
+model ReceiptItem {
+  id                String          @id @default(auto()) @map("_id") @db.ObjectId
+  deliveryReceiptId String          @db.ObjectId
+  deliveryReceipt   DeliveryReceipt @relation(fields: [deliveryReceiptId], references: [id])
+
+  deliveryOrderItemId String?    @db.ObjectId
+  deliveryOrderItem   OrderItem? @relation(fields: [deliveryOrderItemId], references: [id])
+
+  receivedQuantity Int?
+  approvedQuantity Int?
+  rejectedQuantity Int?
+
+  inspectionNotes String?
+
+  condition String?
+  photos    String[]
+
+  expiryDate DateTime? // For perishable items
+
+  inspectedAt DateTime?
+
+  isDeleted Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

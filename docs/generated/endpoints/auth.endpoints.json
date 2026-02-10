@@ -1,0 +1,266 @@
+[
+  {
+    "id": "POST /api/auth/register",
+    "method": "POST",
+    "url": "/api/auth/register",
+    "summary": "Register a new user",
+    "description": "Register a new user with person details and authentication credentials",
+    "tags": [
+      "Auth"
+    ],
+    "deprecated": false,
+    "contentTypes": [
+      "application/json"
+    ],
+    "pathParams": [],
+    "queryParams": [],
+    "requestBody": {
+      "required": true,
+      "schema": {
+        "$ref": "#/components/schemas/RegisterRequest"
+      },
+      "contentTypes": [
+        "application/json"
+      ]
+    },
+    "responses": {
+      "201": {
+        "description": "User registered successfully",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "example": true
+            },
+            "message": {
+              "type": "string",
+              "example": "Registration successful"
+            },
+            "data": {
+              "type": "object",
+              "properties": {
+                "result": {
+                  "$ref": "#/components/schemas/AuthUser"
+                }
+              }
+            }
+          }
+        },
+        "contentTypes": [
+          "application/json"
+        ]
+      },
+      "400": {
+        "description": "Validation error or user already exists",
+        "contentTypes": []
+      },
+      "500": {
+        "description": "Internal server error",
+        "contentTypes": []
+      }
+    },
+    "paginationHints": {
+      "hasPaginationParams": false,
+      "hasSearchParam": false,
+      "hasSortParams": false
+    }
+  },
+  {
+    "id": "POST /api/auth/login",
+    "method": "POST",
+    "url": "/api/auth/login",
+    "summary": "Login user",
+    "description": "Authenticate user and return JWT token",
+    "tags": [
+      "Auth"
+    ],
+    "deprecated": false,
+    "contentTypes": [
+      "application/json"
+    ],
+    "pathParams": [],
+    "queryParams": [],
+    "requestBody": {
+      "required": true,
+      "schema": {
+        "$ref": "#/components/schemas/LoginRequest"
+      },
+      "contentTypes": [
+        "application/json"
+      ]
+    },
+    "responses": {
+      "200": {
+        "description": "Login successful",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "example": true
+            },
+            "message": {
+              "type": "string",
+              "example": "Logged in successfully"
+            },
+            "data": {
+              "$ref": "#/components/schemas/AuthUser"
+            }
+          }
+        },
+        "contentTypes": [
+          "application/json"
+        ]
+      },
+      "401": {
+        "description": "Invalid credentials",
+        "contentTypes": []
+      },
+      "500": {
+        "description": "Internal server error",
+        "contentTypes": []
+      }
+    },
+    "paginationHints": {
+      "hasPaginationParams": false,
+      "hasSearchParam": false,
+      "hasSortParams": false
+    }
+  },
+  {
+    "id": "POST /api/auth/logout",
+    "method": "POST",
+    "url": "/api/auth/logout",
+    "summary": "Logout user",
+    "description": "Logout user and clear JWT token cookie",
+    "tags": [
+      "Auth"
+    ],
+    "deprecated": false,
+    "security": [
+      {
+        "cookieAuth": []
+      }
+    ],
+    "contentTypes": [],
+    "pathParams": [],
+    "queryParams": [],
+    "responses": {
+      "200": {
+        "description": "Successfully logged out",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "example": true
+            },
+            "message": {
+              "type": "string",
+              "example": "Logged out successfully"
+            },
+            "data": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "example": true
+                }
+              }
+            }
+          }
+        },
+        "contentTypes": [
+          "application/json"
+        ]
+      },
+      "500": {
+        "description": "Internal server error",
+        "contentTypes": []
+      }
+    },
+    "paginationHints": {
+      "hasPaginationParams": false,
+      "hasSearchParam": false,
+      "hasSortParams": false
+    }
+  },
+  {
+    "id": "PUT /api/auth/update-password",
+    "method": "PUT",
+    "url": "/api/auth/update-password",
+    "summary": "Update user password",
+    "description": "Update a user's password by user ID",
+    "tags": [
+      "Auth"
+    ],
+    "deprecated": false,
+    "security": [
+      {
+        "bearerAuth": []
+      }
+    ],
+    "contentTypes": [
+      "application/json"
+    ],
+    "pathParams": [],
+    "queryParams": [],
+    "requestBody": {
+      "required": true,
+      "schema": {
+        "$ref": "#/components/schemas/UpdatePasswordRequest"
+      },
+      "contentTypes": [
+        "application/json"
+      ]
+    },
+    "responses": {
+      "200": {
+        "description": "Password updated successfully",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "example": true
+            },
+            "message": {
+              "type": "string",
+              "example": "Password updated successfully"
+            },
+            "data": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "example": true
+                }
+              }
+            }
+          }
+        },
+        "contentTypes": [
+          "application/json"
+        ]
+      },
+      "400": {
+        "description": "Validation error",
+        "contentTypes": []
+      },
+      "404": {
+        "description": "User not found",
+        "contentTypes": []
+      },
+      "500": {
+        "description": "Internal server error",
+        "contentTypes": []
+      }
+    },
+    "paginationHints": {
+      "hasPaginationParams": false,
+      "hasSearchParam": false,
+      "hasSortParams": false
+    }
+  }
+]

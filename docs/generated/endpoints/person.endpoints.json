@@ -1,0 +1,347 @@
+[
+  {
+    "id": "GET /api/person/{id}",
+    "method": "GET",
+    "url": "/api/person/{id}",
+    "summary": "Get person by id",
+    "description": "Get person by id with optional fields to include",
+    "tags": [
+      "Person"
+    ],
+    "deprecated": false,
+    "contentTypes": [],
+    "pathParams": [
+      {
+        "name": "id",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "queryParams": [
+      {
+        "name": "fields",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Comma-separated list of fields to include"
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Returns person data",
+        "contentTypes": []
+      },
+      "404": {
+        "description": "Person not found",
+        "contentTypes": []
+      }
+    },
+    "paginationHints": {
+      "hasPaginationParams": false,
+      "hasSearchParam": false,
+      "hasSortParams": false
+    }
+  },
+  {
+    "id": "PATCH /api/person/{id}",
+    "method": "PATCH",
+    "url": "/api/person/{id}",
+    "summary": "Update person",
+    "description": "Update person data by id",
+    "tags": [
+      "Person"
+    ],
+    "deprecated": false,
+    "contentTypes": [
+      "application/json"
+    ],
+    "pathParams": [
+      {
+        "name": "id",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "queryParams": [],
+    "requestBody": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "middleName": {
+            "type": "string"
+          },
+          "contactNumber": {
+            "type": "string"
+          },
+          "suffix": {
+            "type": "string"
+          },
+          "gender": {
+            "type": "string",
+            "enum": [
+              "male",
+              "female",
+              "others"
+            ]
+          },
+          "birthDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "birthPlace": {
+            "type": "string"
+          },
+          "age": {
+            "type": "integer"
+          },
+          "religion": {
+            "type": "string"
+          },
+          "civilStatus": {
+            "type": "string",
+            "enum": [
+              "single",
+              "married",
+              "separated",
+              "widow",
+              "cohabiting"
+            ]
+          }
+        }
+      },
+      "contentTypes": [
+        "application/json"
+      ]
+    },
+    "responses": {
+      "200": {
+        "description": "Returns updated person",
+        "contentTypes": []
+      },
+      "404": {
+        "description": "Person not found",
+        "contentTypes": []
+      }
+    },
+    "paginationHints": {
+      "hasPaginationParams": false,
+      "hasSearchParam": false,
+      "hasSortParams": false
+    }
+  },
+  {
+    "id": "PUT /api/person/{id}",
+    "method": "PUT",
+    "url": "/api/person/{id}",
+    "summary": "Soft delete person",
+    "description": "Mark person as deleted without permanently removing the data",
+    "tags": [
+      "Person"
+    ],
+    "deprecated": false,
+    "contentTypes": [],
+    "pathParams": [
+      {
+        "name": "id",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "queryParams": [],
+    "responses": {
+      "200": {
+        "description": "Person marked as deleted successfully",
+        "contentTypes": []
+      },
+      "404": {
+        "description": "Person not found",
+        "contentTypes": []
+      }
+    },
+    "paginationHints": {
+      "hasPaginationParams": false,
+      "hasSearchParam": false,
+      "hasSortParams": false
+    }
+  },
+  {
+    "id": "GET /api/person",
+    "method": "GET",
+    "url": "/api/person",
+    "summary": "Get all persons",
+    "description": "Get all persons with pagination, sorting, and field selection",
+    "tags": [
+      "Person"
+    ],
+    "deprecated": false,
+    "contentTypes": [],
+    "pathParams": [],
+    "queryParams": [
+      {
+        "name": "page",
+        "schema": {
+          "type": "integer"
+        },
+        "description": "Page number (default 1)"
+      },
+      {
+        "name": "limit",
+        "schema": {
+          "type": "integer"
+        },
+        "description": "Records per page (default 10)"
+      },
+      {
+        "name": "sort",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Field to sort by"
+      },
+      {
+        "name": "order",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ]
+        },
+        "description": "Sort order (default desc)"
+      },
+      {
+        "name": "fields",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Comma-separated list of fields to include"
+      },
+      {
+        "name": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Search query to filter results"
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Returns paginated persons list",
+        "contentTypes": []
+      }
+    },
+    "paginationHints": {
+      "hasPaginationParams": true,
+      "hasSearchParam": true,
+      "hasSortParams": true
+    }
+  },
+  {
+    "id": "POST /api/person",
+    "method": "POST",
+    "url": "/api/person",
+    "summary": "Create or find person",
+    "description": "Creates a new person or returns existing one if found with same first and last name",
+    "tags": [
+      "Person"
+    ],
+    "deprecated": false,
+    "contentTypes": [
+      "application/json"
+    ],
+    "pathParams": [],
+    "queryParams": [],
+    "requestBody": {
+      "required": true,
+      "schema": {
+        "type": "object",
+        "required": [
+          "firstName",
+          "lastName"
+        ],
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "middleName": {
+            "type": "string"
+          },
+          "contactNumber": {
+            "type": "string"
+          },
+          "suffix": {
+            "type": "string"
+          },
+          "gender": {
+            "type": "string",
+            "enum": [
+              "male",
+              "female",
+              "others"
+            ]
+          },
+          "birthDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "birthPlace": {
+            "type": "string"
+          },
+          "age": {
+            "type": "integer"
+          },
+          "religion": {
+            "type": "string"
+          },
+          "civilStatus": {
+            "type": "string",
+            "enum": [
+              "single",
+              "married",
+              "separated",
+              "widow",
+              "cohabiting"
+            ]
+          }
+        }
+      },
+      "contentTypes": [
+        "application/json"
+      ]
+    },
+    "responses": {
+      "200": {
+        "description": "Returns existing person",
+        "contentTypes": []
+      },
+      "201": {
+        "description": "Returns newly created person",
+        "contentTypes": []
+      },
+      "400": {
+        "description": "Missing required fields",
+        "contentTypes": []
+      }
+    },
+    "paginationHints": {
+      "hasPaginationParams": false,
+      "hasSearchParam": false,
+      "hasSortParams": false
+    }
+  }
+]

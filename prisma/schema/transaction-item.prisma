@@ -1,0 +1,18 @@
+model TransactionItem {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  transactionId String      @db.ObjectId
+  transaction   Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  productId     String      @db.ObjectId
+  product       Product     @relation(fields: [productId], references: [id])
+  batchNumber   String
+  expiryDate    DateTime
+  quantity      Int // Quantity moved in this transaction
+  stockAfter    Int // Stock level after this transaction
+  isDeleted     Boolean     @default(false)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([transactionId])
+  @@index([productId])
+  @@index([batchNumber])
+}

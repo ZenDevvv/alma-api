@@ -1,0 +1,27 @@
+model StockItem {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  productId String  @db.ObjectId
+  product   Product @relation(fields: [productId], references: [id])
+
+  batchId String? @db.ObjectId
+  batch   Batch?  @relation(fields: [batchId], references: [id])
+
+  quantity Int?
+
+  asp Float?
+
+  expiryDate DateTime?
+
+  receivedById String? @db.ObjectId
+  receivedBy   User?   @relation("StockItemReceivedBy", fields: [receivedById], references: [id])
+
+  notes     String?
+  isDeleted Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([productId])
+  @@index([batchId])
+  @@map("stock_movement_items")
+}
