@@ -12,7 +12,7 @@ async function seedSuperAdmin() {
 		return;
 	}
 
-	const hashedPassword = await argon2.hash("SuperAdmin@123");
+	const hashedPassword = await argon2.hash("Test123!");
 
 	const person = await prisma.person.create({
 		data: {
