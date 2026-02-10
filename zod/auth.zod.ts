@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Role, SubRole } from "./user.zod";
+import { CreateUserSchema } from "./user.zod";
 import {
 	PersonalInfoSchema,
 	ContactSchema,
@@ -23,24 +23,17 @@ export const RegisterPersonSchema = z.object({
 	kycStatus: KYCStatus.default("PENDING").optional(),
 });
 
-export const RegisterSchema = z.object({
-	// User fields
-	email: z.string().email("Invalid email format"),
+export const RegisterSchema = CreateUserSchema.pick({
+	email: true,
+	password: true,
+	userName: true,
+	role: true,
+	subRole: true,
+	orgId: true,
+}).required({
+	userName: true,
+}).extend({
 	password: z.string().min(6, "Password must be at least 6 characters long"),
-	userName: z
-		.string()
-		.min(3, "Username must be at least 3 characters")
-		.max(50, "Username must be at most 50 characters")
-		.regex(
-			/^[a-zA-Z0-9_-]+$/,
-			"Username can only contain letters, numbers, underscores, and hyphens",
-		),
-	role: Role,
-	subRole: SubRole.optional().nullable(),
-	orgId: z.string().optional().nullable(),
-	departmentId: z.string().optional().nullable(),
-
-	// Person fields (nested)
 	person: RegisterPersonSchema,
 });
 

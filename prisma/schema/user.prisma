@@ -13,12 +13,12 @@ model User {
   email    String   @unique
   password String
   role     Role
-  subRole  SubRole?
+  subRole  SubRole
 
   status      UserStatus @default(active)
   isDeleted   Boolean    @default(false)
   lastLogin   DateTime?
-  loginMethod String
+  loginMethod String?
 
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
@@ -46,5 +46,6 @@ enum SubRole {
   student
   instructor
   org_admin
+  superadmin
 }
 

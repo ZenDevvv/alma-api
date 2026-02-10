@@ -92,7 +92,7 @@ export const controller = (prisma: PrismaClient) => {
 					role: role,
 					personId: person.id,
 					...(orgId ? { orgId } : {}),
-					...(subRole ? { subRole } : {}),
+					subRole: subRole,
 				},
 			});
 
