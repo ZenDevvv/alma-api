@@ -6,6 +6,3 @@ import { PrismaClient } from "../../generated/prisma";
 export const templateModule = (prisma: PrismaClient): Router => {
 	return router(express.Router(), controller(prisma));
 };
-
-// For backward compatibility
-module.exports = templateModule;

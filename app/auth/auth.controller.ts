@@ -134,7 +134,7 @@ export const controller = (prisma: PrismaClient) => {
 					email: user.email,
 					userName: user.userName,
 				},
-				description: `${config.AUDIT_LOG.USER.DESCRIPTIONS.USER_CREATED}: ${email}`,
+				description: `${config.AUDIT_LOG.USER.DESCRIPTIONS.CREATED}: ${email}`,
 			});
 
 			authLogger.info(`${config.SUCCESS.AUTH.USER_CREATED}: ${user.id}`);

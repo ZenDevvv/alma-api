@@ -54,11 +54,11 @@ export const controller = (prisma: PrismaClient) => {
 
 			logActivity(req, {
 				userId: (req as any).user?.id || "unknown",
-				action: config.ACTIVITY_LOG.TEMPLATE.ACTIONS.CREATE_TEMPLATE,
-				description: `${config.ACTIVITY_LOG.TEMPLATE.DESCRIPTIONS.TEMPLATE_CREATED}: ${template.name || template.id}`,
+				action: config.ACTIVITY_LOG.TEMPLATE.ACTIONS.CREATE,
+				description: `${config.ACTIVITY_LOG.TEMPLATE.DESCRIPTIONS.CREATED}: ${template.name || template.id}`,
 				page: {
 					url: req.originalUrl,
-					title: config.ACTIVITY_LOG.TEMPLATE.PAGES.TEMPLATE_CREATION,
+					title: config.ACTIVITY_LOG.TEMPLATE.PAGES.CREATION,
 				},
 			});
 
@@ -77,7 +77,7 @@ export const controller = (prisma: PrismaClient) => {
 					createdAt: template.createdAt,
 					updatedAt: template.updatedAt,
 				},
-				description: `${config.AUDIT_LOG.TEMPLATE.DESCRIPTIONS.TEMPLATE_CREATED}: ${template.name || template.id}`,
+				description: `${config.AUDIT_LOG.TEMPLATE.DESCRIPTIONS.CREATED}: ${template.name || template.id}`,
 			});
 
 			try {

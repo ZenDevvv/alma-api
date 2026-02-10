@@ -54,11 +54,11 @@ export const controller = (prisma: PrismaClient) => {
 
 			logActivity(req, {
 				userId: (req as any).user?.id || "unknown",
-				action: config.ACTIVITY_LOG.SYSTEMLOG.ACTIONS.CREATE_SYSTEMLOG,
-				description: `${config.ACTIVITY_LOG.SYSTEMLOG.DESCRIPTIONS.SYSTEMLOG_CREATED}: ${systemLog.id}`,
+				action: config.ACTIVITY_LOG.SYSTEMLOG.ACTIONS.CREATE,
+				description: `${config.ACTIVITY_LOG.SYSTEMLOG.DESCRIPTIONS.CREATED}: ${systemLog.id}`,
 				page: {
 					url: req.originalUrl,
-					title: config.ACTIVITY_LOG.SYSTEMLOG.PAGES.SYSTEMLOG_CREATION,
+					title: config.ACTIVITY_LOG.SYSTEMLOG.PAGES.CREATION,
 				},
 			});
 
@@ -73,7 +73,7 @@ export const controller = (prisma: PrismaClient) => {
 				changesAfter: {
 					...systemLog,
 				},
-				description: `${config.AUDIT_LOG.SYSTEMLOG.DESCRIPTIONS.SYSTEMLOG_CREATED}: ${systemLog.id}`,
+				description: `${config.AUDIT_LOG.SYSTEMLOG.DESCRIPTIONS.CREATED}: ${systemLog.id}`,
 			});
 
 			try {

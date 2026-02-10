@@ -60,7 +60,7 @@ export default async (req: AuthRequest, res: Response, next: NextFunction) => {
 			}
 			const user = await prisma.user.findUnique({
 				where: { id: req.userId },
-				select: { role: true, subRole: true, department: true, orgId: true },
+			select: { role: true, subRole: true, orgId: true },
 			});
 			if (!user) {
 				res.status(401).json({ message: "User not found" });
@@ -69,9 +69,7 @@ export default async (req: AuthRequest, res: Response, next: NextFunction) => {
 			// Assign fallbacks if missing
 			req.role = req.role || (user.role as Role);
 			req.subRole = req.subRole || (user.subRole as string);
-			req.departmentId = req.departmentId || (user.department?.id as string);
 			req.orgId = req.orgId || (user.orgId as string);
-			req.departmentCode = req.departmentCode || (user.department?.code as string);
 			// Note: firstName/lastName not stored on User; skip enrichment
 		}
 

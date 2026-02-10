@@ -54,11 +54,11 @@ export const controller = (prisma: PrismaClient) => {
 
 			logActivity(req, {
 				userId: (req as any).user?.id || "unknown",
-				action: config.ACTIVITY_LOG.NOTIFICATION.ACTIONS.CREATE_NOTIFICATION,
-				description: `${config.ACTIVITY_LOG.NOTIFICATION.DESCRIPTIONS.NOTIFICATION_CREATED}: ${notification.id}`,
+				action: config.ACTIVITY_LOG.NOTIFICATION.ACTIONS.CREATE,
+				description: `${config.ACTIVITY_LOG.NOTIFICATION.DESCRIPTIONS.CREATED}: ${notification.id}`,
 				page: {
 					url: req.originalUrl,
-					title: config.ACTIVITY_LOG.NOTIFICATION.PAGES.NOTIFICATION_CREATION,
+					title: config.ACTIVITY_LOG.NOTIFICATION.PAGES.CREATION,
 				},
 			});
 
@@ -73,7 +73,7 @@ export const controller = (prisma: PrismaClient) => {
 				changesAfter: {
 					...notification,
 				},
-				description: `${config.AUDIT_LOG.NOTIFICATION.DESCRIPTIONS.NOTIFICATION_CREATED}: ${notification.id}`,
+				description: `${config.AUDIT_LOG.NOTIFICATION.DESCRIPTIONS.CREATED}: ${notification.id}`,
 			});
 
 			try {

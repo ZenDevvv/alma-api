@@ -1,8 +1,80 @@
+// ──────────────────────────────────────────────
+// Factory functions for DRY constant generation
+// ──────────────────────────────────────────────
+
+function createEntityErrors(entity: string, entityLower: string, entityPluralLower?: string) {
+	const plural = entityPluralLower || `${entityLower}s`;
+	return {
+		VALIDATION_FAILED: `${entity} validation failed`,
+		INVALID_ID_FORMAT: `Invalid ${entityLower} ID format`,
+		NOT_FOUND: `${entity} not found`,
+		CREATE_FAILED: `Error creating ${entityLower}`,
+		UPDATE_FAILED: `Error updating ${entityLower}`,
+		DELETE_FAILED: `Error deleting ${entityLower}`,
+		GET_FAILED: `Error getting ${entityLower}`,
+		GET_ALL_FAILED: `Error getting ${plural}`,
+		ERROR_GETTING: `Error getting ${entityLower}`,
+		ERROR_UPDATING: `Error updating ${entityLower}`,
+		ORDER_MUST_BE_ASC_OR_DESC: "Order must be asc or desc",
+	};
+}
+
+function createEntitySuccess(entity: string, entityPlural: string, entityLower: string) {
+	return {
+		CREATED: `${entity} created successfully`,
+		UPDATED: `${entity} updated successfully`,
+		DELETED: `${entity} deleted successfully`,
+		RETRIEVED: `${entity} retrieved successfully`,
+		RETRIEVED_ALL: `${entityPlural} retrieved successfully`,
+		GETTING_BY_ID: `Getting ${entityLower} by ID`,
+	};
+}
+
+function createActivityLog(entityUpper: string, entity: string, entityLower: string) {
+	return {
+		ACTIONS: {
+			CREATE: `CREATE_${entityUpper}`,
+			GET_ALL: `GET_ALL_${entityUpper}`,
+			GET: `GET_${entityUpper}`,
+			UPDATE: `UPDATE_${entityUpper}`,
+			DELETE: `DELETE_${entityUpper}`,
+		},
+		DESCRIPTIONS: {
+			CREATED: `Created new ${entityLower}`,
+			UPDATED: `Updated ${entityLower}`,
+			DELETED: `Deleted ${entityLower}`,
+			RETRIEVED: `Retrieved ${entityLower} details`,
+			LIST_RETRIEVED: `Retrieved ${entityLower} list`,
+		},
+		PAGES: {
+			CREATION: `${entity} Creation`,
+			UPDATE: `${entity} Update`,
+			DELETION: `${entity} Deletion`,
+			DETAILS: `${entity} Details`,
+			LIST: `${entity} List`,
+		},
+	};
+}
+
+function createAuditLogEntity(entityLower: string) {
+	return {
+		DESCRIPTIONS: {
+			CREATED: `Created new ${entityLower}`,
+			UPDATED: `Updated ${entityLower}`,
+			DELETED: `Deleted ${entityLower}`,
+		},
+	};
+}
+
+// ──────────────────────────────────────────────
+// Config
+// ──────────────────────────────────────────────
+
 export const config = {
 	DEFAULT_UNKNOWN_USER_ID: "unknown",
 	ERROR: {
 		PERSON: {
-			NOT_FOUND: "Person not found",
+			...createEntityErrors("Person", "person", "persons"),
 			INVALID_ID: "Invalid person ID",
 			MISSING_ID: "Missing person ID",
 			USER_ID_REQUIRED: "Person ID is required",
@@ -13,13 +85,11 @@ export const config = {
 			INVALID_PAGE: "Invalid page number",
 			INVALID_LIMIT: "Invalid limit number",
 			INVALID_ORDER: "Invalid order parameter",
-			ORDER_MUST_BE_ASC_OR_DESC: "Order must be either 'asc' or 'desc'",
 			INVALID_SELECT: "Invalid select parameter",
 			SELECT_MUST_BE_STRING: "Select parameter must be a comma-separated string",
 			INVALID_SORT: "Invalid sort parameter",
 			SORT_MUST_BE_STRING: "Sort parameter must be a valid JSON string or field name",
 			NO_UPDATE_FIELDS: "No update fields provided",
-			UPDATE_FAILED: "Failed to update person",
 			AT_LEAST_ONE_FIELD_REQUIRED: "At least one field is required for update",
 			INVALID_EMAIL: "Invalid email format",
 			EMAIL_ALREADY_EXISTS: "Email already exists",
@@ -29,7 +99,7 @@ export const config = {
 			GETTING_ALL_USERS: "Getting all persons",
 		},
 		USER: {
-			NOT_FOUND: "User not found",
+			...createEntityErrors("User", "user", "users"),
 			INVALID_ID: "Invalid user ID",
 			MISSING_ID: "Missing user ID",
 			USER_ID_REQUIRED: "User ID is required",
@@ -40,13 +110,11 @@ export const config = {
 			INVALID_PAGE: "Invalid page number",
 			INVALID_LIMIT: "Invalid limit number",
 			INVALID_ORDER: "Invalid order parameter",
-			ORDER_MUST_BE_ASC_OR_DESC: "Order must be either 'asc' or 'desc'",
 			INVALID_SELECT: "Invalid select parameter",
 			SELECT_MUST_BE_STRING: "Select parameter must be a comma-separated string",
 			INVALID_SORT: "Invalid sort parameter",
 			SORT_MUST_BE_STRING: "Sort parameter must be a valid JSON string or field name",
 			NO_UPDATE_FIELDS: "No update fields provided",
-			UPDATE_FAILED: "Failed to update user",
 			AT_LEAST_ONE_FIELD_REQUIRED: "At least one field is required for update",
 			INVALID_EMAIL: "Invalid email format",
 			EMAIL_ALREADY_EXISTS: "Email already exists",
@@ -58,7 +126,6 @@ export const config = {
 			INVALID_QUERY_PARAMETERS: "Invalid query parameters",
 			INVALID_UPDATE_DATA: "Invalid update data",
 			REQUEST_BODY_EMPTY: "Request body cannot be empty",
-			VALIDATION_FAILED: "Validation failed",
 			FIRST_NAME_REQUIRED: "First name is required",
 			LAST_NAME_REQUIRED: "Last name is required",
 			UNAUTHORIZED_USER_ID_NOT_FOUND: "Unauthorized - User ID not found",
@@ -68,16 +135,7 @@ export const config = {
 			AVATAR_UPLOADED: "Avatar uploaded successfully",
 			ORGANIZATION_VERIFIED: "Organization verified",
 			USER_ALREADY_EXISTS: "User already exists",
-
 			INVALID_ID_FORMAT: "Invalid user ID format",
-
-			CREATE_FAILED: "Error creating user",
-
-			DELETE_FAILED: "Error deleting user",
-			GET_FAILED: "Error getting user",
-			GET_ALL_FAILED: "Error getting users",
-			ERROR_GETTING: "Error getting user",
-			ERROR_UPDATING: "Error updating user",
 		},
 		AUTH: {
 			UNAUTHORIZED: "Unauthorized",
@@ -98,19 +156,14 @@ export const config = {
 			USER_NOT_FOUND: "User not found",
 			FAILED_TO_CREATE_OR_FIND_PERSON: "Failed to create or find person",
 		},
-		TEMPLATE: {
-			VALIDATION_FAILED: "Template validation failed",
-			INVALID_ID_FORMAT: "Invalid template ID format",
-			NOT_FOUND: "Template not found",
-			CREATE_FAILED: "Error creating template",
-			UPDATE_FAILED: "Error updating template",
-			DELETE_FAILED: "Error deleting template",
-			GET_FAILED: "Error getting template",
-			GET_ALL_FAILED: "Error getting templates",
-			ERROR_GETTING: "Error getting template",
-			ERROR_UPDATING: "Error updating template",
-			ORDER_MUST_BE_ASC_OR_DESC: "Order must be asc or desc",
-		},
+		TEMPLATE: createEntityErrors("Template", "template", "templates"),
+		ROLE: createEntityErrors("Role", "role", "roles"),
+		ORGANIZATION: createEntityErrors("Organization", "organization", "organizations"),
+		ACTIVITYLOG: createEntityErrors("ActivityLog", "activitylog", "activitylogs"),
+		AUDITLOG: createEntityErrors("AuditLog", "auditlog", "auditlogs"),
+		NOTIFICATION: createEntityErrors("Notification", "notification", "notifications"),
+		SYSTEMLOG: createEntityErrors("SystemLog", "systemlog", "systemlogs"),
+		METRICS: createEntityErrors("Metrics", "metrics", "metrics"),
 		QUERY_PARAMS: {
 			INVALID_ID: "Invalid ID",
 			MISSING_ID: "ID parameter is required",
@@ -143,98 +196,6 @@ export const config = {
 			UNAUTHORIZED: "Unauthorized access",
 			NO_UPDATE_FIELDS: "No fields provided for update",
 		},
-		ROLE: {
-			VALIDATION_FAILED: "Role validation failed",
-			INVALID_ID_FORMAT: "Invalid role ID format",
-			NOT_FOUND: "Role not found",
-			CREATE_FAILED: "Error creating role",
-			UPDATE_FAILED: "Error updating role",
-			DELETE_FAILED: "Error deleting role",
-			GET_FAILED: "Error getting role",
-			GET_ALL_FAILED: "Error getting roles",
-			ERROR_GETTING: "Error getting role",
-			ERROR_UPDATING: "Error updating role",
-			ORDER_MUST_BE_ASC_OR_DESC: "Order must be asc or desc",
-		},
-
-		ORGANIZATION: {
-			VALIDATION_FAILED: "Organization validation failed",
-			INVALID_ID_FORMAT: "Invalid organization ID format",
-			NOT_FOUND: "Organization not found",
-			CREATE_FAILED: "Error creating organization",
-			UPDATE_FAILED: "Error updating organization",
-			DELETE_FAILED: "Error deleting organization",
-			GET_FAILED: "Error getting organization",
-			GET_ALL_FAILED: "Error getting organizations",
-			ERROR_GETTING: "Error getting organization",
-			ERROR_UPDATING: "Error updating organization",
-			ORDER_MUST_BE_ASC_OR_DESC: "Order must be asc or desc",
-		},
-		ACTIVITYLOG: {
-			VALIDATION_FAILED: "ActivityLog validation failed",
-			INVALID_ID_FORMAT: "Invalid activitylog ID format",
-			NOT_FOUND: "ActivityLog not found",
-			CREATE_FAILED: "Error creating activitylog",
-			UPDATE_FAILED: "Error updating activitylog",
-			DELETE_FAILED: "Error deleting activitylog",
-			GET_FAILED: "Error getting activitylog",
-			GET_ALL_FAILED: "Error getting activitylogs",
-			ERROR_GETTING: "Error getting activitylog",
-			ERROR_UPDATING: "Error updating activitylog",
-			ORDER_MUST_BE_ASC_OR_DESC: "Order must be asc or desc",
-		},
-		AUDITLOG: {
-			VALIDATION_FAILED: "AuditLog validation failed",
-			INVALID_ID_FORMAT: "Invalid auditlog ID format",
-			NOT_FOUND: "AuditLog not found",
-			CREATE_FAILED: "Error creating auditlog",
-			UPDATE_FAILED: "Error updating auditlog",
-			DELETE_FAILED: "Error deleting auditlog",
-			GET_FAILED: "Error getting auditlog",
-			GET_ALL_FAILED: "Error getting auditlogs",
-			ERROR_GETTING: "Error getting auditlog",
-			ERROR_UPDATING: "Error updating auditlog",
-			ORDER_MUST_BE_ASC_OR_DESC: "Order must be asc or desc",
-		},
-		NOTIFICATION: {
-			VALIDATION_FAILED: "Notification validation failed",
-			INVALID_ID_FORMAT: "Invalid notification ID format",
-			NOT_FOUND: "Notification not found",
-			CREATE_FAILED: "Error creating notification",
-			UPDATE_FAILED: "Error updating notification",
-			DELETE_FAILED: "Error deleting notification",
-			GET_FAILED: "Error getting notification",
-			GET_ALL_FAILED: "Error getting notifications",
-			ERROR_GETTING: "Error getting notification",
-			ERROR_UPDATING: "Error updating notification",
-			ORDER_MUST_BE_ASC_OR_DESC: "Order must be asc or desc",
-		},
-		SYSTEMLOG: {
-			VALIDATION_FAILED: "SystemLog validation failed",
-			INVALID_ID_FORMAT: "Invalid systemlog ID format",
-			NOT_FOUND: "SystemLog not found",
-			CREATE_FAILED: "Error creating systemlog",
-			UPDATE_FAILED: "Error updating systemlog",
-			DELETE_FAILED: "Error deleting systemlog",
-			GET_FAILED: "Error getting systemlog",
-			GET_ALL_FAILED: "Error getting systemlogs",
-			ERROR_GETTING: "Error getting systemlog",
-			ERROR_UPDATING: "Error updating systemlog",
-			ORDER_MUST_BE_ASC_OR_DESC: "Order must be asc or desc",
-		},
-		METRICS: {
-			VALIDATION_FAILED: "Metrics validation failed",
-			INVALID_ID_FORMAT: "Invalid metrics ID format",
-			NOT_FOUND: "Metrics not found",
-			CREATE_FAILED: "Error creating metrics",
-			UPDATE_FAILED: "Error updating metrics",
-			DELETE_FAILED: "Error deleting metrics",
-			GET_FAILED: "Error getting metrics",
-			GET_ALL_FAILED: "Error getting metrics",
-			ERROR_GETTING: "Error getting metrics",
-			ERROR_UPDATING: "Error updating metrics",
-			ORDER_MUST_BE_ASC_OR_DESC: "Order must be asc or desc",
-		},
 	},
 	INFO: {
 		USER: {
@@ -253,301 +214,69 @@ export const config = {
 			ORGANIZATION_VERIFIED: "Organization verified successfully",
 			USER_LOGGED_IN: "User logged in successfully",
 		},
-		TEMPLATE: {
-			CREATED: "Template created successfully",
-			UPDATED: "Template updated successfully",
-			DELETED: "Template deleted successfully",
-			RETRIEVED: "Template retrieved successfully",
-			RETRIEVED_ALL: "Templates retrieved successfully",
-			GETTING_BY_ID: "Getting template by ID",
-		},
 		COMMON: {
 			OPERATION_SUCCESSFUL: "Operation completed successfully",
 		},
 		PERSON: {
+			...createEntitySuccess("Person", "Persons", "person"),
 			SOFT_DELETING: "Soft deleting user",
-			CREATED: "Person created successfully",
-			UPDATED: "Person updated successfully",
-			DELETED: "Person deleted successfully",
-			RETRIEVED: "Person retrieved successfully",
-			RETRIEVED_ALL: "Persons retrieved successfully",
-			GETTING_BY_ID: "Getting person by ID",
 			GETTING_USER_BY_ID: "Getting person by ID",
 			GETTING_ALL_USERS: "Getting all persons",
 		},
-		ROLE: {
-			CREATED: "Role created successfully",
-			UPDATED: "Role updated successfully",
-			DELETED: "Role deleted successfully",
-			RETRIEVED: "Role retrieved successfully",
-			RETRIEVED_ALL: "Roles retrieved successfully",
-			GETTING_BY_ID: "Getting role by ID",
-		},
 		USER: {
-			CREATED: "User created successfully",
-			UPDATED: "User updated successfully",
-			DELETED: "User deleted successfully",
-			RETRIEVED: "User retrieved successfully",
-			RETRIEVED_ALL: "Users retrieved successfully",
-			GETTING_BY_ID: "Getting user by ID",
+			...createEntitySuccess("User", "Users", "user"),
 		},
-		ORGANIZATION: {
-			CREATED: "Organization created successfully",
-			UPDATED: "Organization updated successfully",
-			DELETED: "Organization deleted successfully",
-			RETRIEVED: "Organization retrieved successfully",
-			RETRIEVED_ALL: "Organizations retrieved successfully",
-			GETTING_BY_ID: "Getting organization by ID",
-		},
-		
-		ACTIVITYLOG: {
-			CREATED: "ActivityLog created successfully",
-			UPDATED: "ActivityLog updated successfully",
-			DELETED: "ActivityLog deleted successfully",
-			RETRIEVED: "ActivityLog retrieved successfully",
-			RETRIEVED_ALL: "ActivityLogs retrieved successfully",
-			GETTING_BY_ID: "Getting activitylog by ID",
-		},
-		AUDITLOG: {
-			CREATED: "AuditLog created successfully",
-			UPDATED: "AuditLog updated successfully",
-			DELETED: "AuditLog deleted successfully",
-			RETRIEVED: "AuditLog retrieved successfully",
-			RETRIEVED_ALL: "AuditLogs retrieved successfully",
-			GETTING_BY_ID: "Getting auditlog by ID",
-		},
-		NOTIFICATION: {
-			CREATED: "Notification created successfully",
-			UPDATED: "Notification updated successfully",
-			DELETED: "Notification deleted successfully",
-			RETRIEVED: "Notification retrieved successfully",
-			RETRIEVED_ALL: "Notifications retrieved successfully",
-			GETTING_BY_ID: "Getting notification by ID",
-		},
-		SYSTEMLOG: {
-			CREATED: "SystemLog created successfully",
-			UPDATED: "SystemLog updated successfully",
-			DELETED: "SystemLog deleted successfully",
-			RETRIEVED: "SystemLog retrieved successfully",
-			RETRIEVED_ALL: "SystemLogs retrieved successfully",
-			GETTING_BY_ID: "Getting systemlog by ID",
-		},
+		TEMPLATE: createEntitySuccess("Template", "Templates", "template"),
+		ROLE: createEntitySuccess("Role", "Roles", "role"),
+		ORGANIZATION: createEntitySuccess("Organization", "Organizations", "organization"),
+		ACTIVITYLOG: createEntitySuccess("ActivityLog", "ActivityLogs", "activitylog"),
+		AUDITLOG: createEntitySuccess("AuditLog", "AuditLogs", "auditlog"),
+		NOTIFICATION: createEntitySuccess("Notification", "Notifications", "notification"),
+		SYSTEMLOG: createEntitySuccess("SystemLog", "SystemLogs", "systemlog"),
+		METRICS: createEntitySuccess("Metrics", "Metrics", "metrics"),
 	},
 
 	ACTIVITY_LOG: {
-		ORGANIZATION: {
+		ORGANIZATION: createActivityLog("ORGANIZATION", "Organization", "organization"),
+		METRICS: createActivityLog("METRICS", "Metrics", "metrics"),
+		SYSTEMLOG: createActivityLog("SYSTEMLOG", "SystemLog", "systemlog"),
+		NOTIFICATION: createActivityLog("NOTIFICATION", "Notification", "notification"),
+		AUDITLOG: createActivityLog("AUDITLOG", "AuditLog", "auditlog"),
+		ACTIVITYLOG: createActivityLog("ACTIVITYLOG", "ActivityLog", "activitylog"),
+		ROLE: createActivityLog("ROLE", "Role", "role"),
+		PERSON: createActivityLog("PERSON", "Person", "person"),
+		USER: {
+			...createActivityLog("USER", "User", "user"),
 			ACTIONS: {
-				CREATE_ORGANIZATION: "CREATE_ORGANIZATION",
-				GET_ALL_ORGANIZATIONS: "GET_ALL_ORGANIZATIONS",
-				GET_ORGANIZATION: "GET_ORGANIZATION",
-				UPDATE_ORGANIZATION: "UPDATE_ORGANIZATION",
-				DELETE_ORGANIZATION: "DELETE_ORGANIZATION",
+				...createActivityLog("USER", "User", "user").ACTIONS,
+				REGISTER: "USER_REGISTRATION",
 			},
 			DESCRIPTIONS: {
-				ORGANIZATION_CREATED: "Created new organization",
-				ORGANIZATION_UPDATED: "Updated organization",
-				ORGANIZATION_DELETED: "Deleted organization",
-				ORGANIZATION_RETRIEVED: "Retrieved organization details",
-				ORGANIZATIONS_RETRIEVED: "Retrieved organizations list",
+				...createActivityLog("USER", "User", "user").DESCRIPTIONS,
+				USER_REGISTERED: "User registered",
 			},
 			PAGES: {
-				ORGANIZATION_CREATION: "Organization Creation",
-				ORGANIZATION_UPDATE: "Organization Update",
-				ORGANIZATION_DELETION: "Organization Deletion",
-				ORGANIZATION_DETAILS: "Organization Details",
-				ORGANIZATIONS_LIST: "Organizations List",
-			},
-		},
-		METRICS: {
-			ACTIONS: {
-				CREATE_METRICS: "CREATE_METRICS",
-				GET_ALL_METRICS: "GET_ALL_METRICS",
-				GET_METRICS: "GET_METRICS",
-				UPDATE_METRICS: "UPDATE_METRICS",
-				DELETE_METRICS: "DELETE_METRICS",
-			},
-			DESCRIPTIONS: {
-				METRICS_CREATED: "Created new metrics",
-				METRICS_UPDATED: "Updated metrics",
-				METRICS_DELETED: "Deleted metrics",
-				METRICS_RETRIEVED: "Retrieved metrics details",
-				METRICSS_RETRIEVED: "Retrieved metrics list",
-			},
-			PAGES: {
-				METRICS_CREATION: "Metrics Creation",
-				METRICS_UPDATE: "Metrics Update",
-				METRICS_DELETION: "Metrics Deletion",
-				METRICS_DETAILS: "Metrics Details",
-				METRICS_LIST: "Metrics List",
-			},
-		},
-		SYSTEMLOG: {
-			ACTIONS: {
-				CREATE_SYSTEMLOG: "CREATE_SYSTEMLOG",
-				GET_ALL_SYSTEMLOG: "GET_ALL_SYSTEMLOG",
-				GET_SYSTEMLOG: "GET_SYSTEMLOG",
-				UPDATE_SYSTEMLOG: "UPDATE_SYSTEMLOG",
-				DELETE_SYSTEMLOG: "DELETE_SYSTEMLOG",
-			},
-			DESCRIPTIONS: {
-				SYSTEMLOG_CREATED: "Created new systemlog",
-				SYSTEMLOG_UPDATED: "Updated systemlog",
-				SYSTEMLOG_DELETED: "Deleted systemlog",
-				SYSTEMLOG_RETRIEVED: "Retrieved systemlog details",
-				SYSTEMLOGS_RETRIEVED: "Retrieved systemlog list",
-			},
-			PAGES: {
-				SYSTEMLOG_CREATION: "SystemLog Creation",
-				SYSTEMLOG_UPDATE: "SystemLog Update",
-				SYSTEMLOG_DELETION: "SystemLog Deletion",
-				SYSTEMLOG_DETAILS: "SystemLog Details",
-				SYSTEMLOG_LIST: "SystemLog List",
-			},
-		},
-		NOTIFICATION: {
-			ACTIONS: {
-				CREATE_NOTIFICATION: "CREATE_NOTIFICATION",
-				GET_ALL_NOTIFICATION: "GET_ALL_NOTIFICATION",
-				GET_NOTIFICATION: "GET_NOTIFICATION",
-				UPDATE_NOTIFICATION: "UPDATE_NOTIFICATION",
-				DELETE_NOTIFICATION: "DELETE_NOTIFICATION",
-			},
-			DESCRIPTIONS: {
-				NOTIFICATION_CREATED: "Created new notification",
-				NOTIFICATION_UPDATED: "Updated notification",
-				NOTIFICATION_DELETED: "Deleted notification",
-				NOTIFICATION_RETRIEVED: "Retrieved notification details",
-				NOTIFICATIONS_RETRIEVED: "Retrieved notification list",
-			},
-			PAGES: {
-				NOTIFICATION_CREATION: "Notification Creation",
-				NOTIFICATION_UPDATE: "Notification Update",
-				NOTIFICATION_DELETION: "Notification Deletion",
-				NOTIFICATION_DETAILS: "Notification Details",
-				NOTIFICATION_LIST: "Notification List",
-			},
-		},
-		AUDITLOG: {
-			ACTIONS: {
-				CREATE_AUDITLOG: "CREATE_AUDITLOG",
-				GET_ALL_AUDITLOG: "GET_ALL_AUDITLOG",
-				GET_AUDITLOG: "GET_AUDITLOG",
-				UPDATE_AUDITLOG: "UPDATE_AUDITLOG",
-				DELETE_AUDITLOG: "DELETE_AUDITLOG",
-			},
-			DESCRIPTIONS: {
-				AUDITLOG_CREATED: "Created new auditlog",
-				AUDITLOG_UPDATED: "Updated auditlog",
-				AUDITLOG_DELETED: "Deleted auditlog",
-				AUDITLOG_RETRIEVED: "Retrieved auditlog details",
-				AUDITLOGS_RETRIEVED: "Retrieved auditlog list",
-			},
-			PAGES: {
-				AUDITLOG_CREATION: "AuditLog Creation",
-				AUDITLOG_UPDATE: "AuditLog Update",
-				AUDITLOG_DELETION: "AuditLog Deletion",
-				AUDITLOG_DETAILS: "AuditLog Details",
-				AUDITLOG_LIST: "AuditLog List",
-			},
-		},
-		ACTIVITYLOG: {
-			ACTIONS: {
-				CREATE_ACTIVITYLOG: "CREATE_ACTIVITYLOG",
-				GET_ALL_ACTIVITYLOG: "GET_ALL_ACTIVITYLOG",
-				GET_ACTIVITYLOG: "GET_ACTIVITYLOG",
-				UPDATE_ACTIVITYLOG: "UPDATE_ACTIVITYLOG",
-				DELETE_ACTIVITYLOG: "DELETE_ACTIVITYLOG",
-			},
-			DESCRIPTIONS: {
-				ACTIVITYLOG_CREATED: "Created new activitylog",
-				ACTIVITYLOG_UPDATED: "Updated activitylog",
-				ACTIVITYLOG_DELETED: "Deleted activitylog",
-				ACTIVITYLOG_RETRIEVED: "Retrieved activitylog details",
-				ACTIVITYLOGS_RETRIEVED: "Retrieved activitylog list",
-			},
-			PAGES: {
-				ACTIVITYLOG_CREATION: "ActivityLog Creation",
-				ACTIVITYLOG_UPDATE: "ActivityLog Update",
-				ACTIVITYLOG_DELETION: "ActivityLog Deletion",
-				ACTIVITYLOG_DETAILS: "ActivityLog Details",
-				ACTIVITYLOG_LIST: "ActivityLog List",
-			},
-		},
-		ROLE: {
-			ACTIONS: {
-				CREATE_ROLE: "CREATE_ROLE",
-				GET_ALL_ROLE: "GET_ALL_ROLE",
-				GET_ROLE: "GET_ROLE",
-				UPDATE_ROLE: "UPDATE_ROLE",
-				DELETE_ROLE: "DELETE_ROLE",
-			},
-			DESCRIPTIONS: {
-				ROLE_CREATED: "Created new role",
-				ROLE_UPDATED: "Updated role",
-				ROLE_DELETED: "Deleted role",
-				ROLE_RETRIEVED: "Retrieved role details",
-				ROLES_RETRIEVED: "Retrieved role list",
-			},
-			PAGES: {
-				ROLE_CREATION: "Role Creation",
-				ROLE_UPDATE: "Role Update",
-				ROLE_DELETION: "Role Deletion",
-				ROLE_DETAILS: "Role Details",
-				ROLE_LIST: "Role List",
-			},
-		},
-		PERSON: {
-			ACTIONS: {
-				CREATE_PERSON: "CREATE_PERSON",
-				GET_ALL_PERSON: "GET_ALL_PERSON",
-				GET_PERSON: "GET_PERSON",
-				UPDATE_PERSON: "UPDATE_PERSON",
-				DELETE_PERSON: "DELETE_PERSON",
-			},
-			DESCRIPTIONS: {
-				PERSON_CREATED: "Created new person",
-				PERSON_UPDATED: "Updated person",
-				PERSON_DELETED: "Deleted person",
-				PERSON_RETRIEVED: "Retrieved person details",
-				PERSONS_RETRIEVED: "Retrieved person list",
-			},
-			PAGES: {
-				PERSON_CREATION: "Person Creation",
-				PERSON_UPDATE: "Person Update",
-				PERSON_DELETION: "Person Deletion",
-				PERSON_DETAILS: "Person Details",
-				PERSON_LIST: "Person List",
+				...createActivityLog("USER", "User", "user").PAGES,
 			},
 		},
 		TEMPLATE: {
+			...createActivityLog("TEMPLATE", "Template", "template"),
 			ACTIONS: {
-				CREATE_TEMPLATE: "CREATE_TEMPLATE",
-				GET_ALL_TEMPLATE: "GET_ALL_TEMPLATE",
-				GET_TEMPLATE: "GET_TEMPLATE",
-				UPDATE_TEMPLATE: "UPDATE_TEMPLATE",
-				DELETE_TEMPLATE: "DELETE_TEMPLATE",
+				...createActivityLog("TEMPLATE", "Template", "template").ACTIONS,
 				USER_LOGIN: "USER_LOGIN",
 				USER_LOGOUT: "USER_LOGOUT",
 				USER_REGISTRATION: "USER_REGISTRATION",
 				PASSWORD_UPDATE: "PASSWORD_UPDATE",
 			},
 			DESCRIPTIONS: {
-				TEMPLATE_CREATED: "Created new template",
-				TEMPLATE_UPDATED: "Updated template",
-				TEMPLATE_DELETED: "Deleted template",
-				TEMPLATE_RETRIEVED: "Retrieved template details",
-				TEMPLATES_RETRIEVED: "Retrieved template list",
+				...createActivityLog("TEMPLATE", "Template", "template").DESCRIPTIONS,
 				USER_LOGGED_IN: "User logged in",
 				USER_LOGGED_OUT: "User logged out",
 				USER_REGISTERED: "User registered",
 				PASSWORD_CHANGED: "Password changed",
 			},
 			PAGES: {
-				TEMPLATE_CREATION: "Template Creation",
-				TEMPLATE_UPDATE: "Template Update",
-				TEMPLATE_DELETION: "Template Deletion",
-				TEMPLATE_DETAILS: "Template Details",
-				TEMPLATE_LIST: "Template List",
+				...createActivityLog("TEMPLATE", "Template", "template").PAGES,
 				USER_LOGIN: "User Login",
 				USER_REGISTRATION: "User Registration",
 				PASSWORD_CHANGE: "Password Change",
@@ -656,278 +385,59 @@ export const config = {
 			MEDICINE: "medicine",
 			APPROVAL: "approval",
 		},
-		PERSON: {
-			DESCRIPTIONS: {
-				PERSON_CREATED: "Created new person",
-				PERSON_UPDATED: "Updated person",
-				PERSON_DELETED: "Deleted person",
-			},
-		},
-		ROLE: {
-			DESCRIPTIONS: {
-				ROLE_CREATED: "Created new role",
-				ROLE_UPDATED: "Updated role",
-				ROLE_DELETED: "Deleted role",
-			},
-		},
-		USER: {
-			DESCRIPTIONS: {
-				USER_CREATED: "Created new user",
-				USER_UPDATED: "Updated user",
-				USER_DELETED: "Deleted user",
-			},
-		},
-		PRODUCT: {
-			DESCRIPTIONS: {
-				PRODUCT_CREATED: "Created new product",
-				PRODUCT_UPDATED: "Updated product",
-				PRODUCT_DELETED: "Deleted product",
-			},
-		},
-		BATCH: {
-			DESCRIPTIONS: {
-				BATCH_CREATED: "Created new batch",
-				BATCH_UPDATED: "Updated batch",
-				BATCH_DELETED: "Deleted batch",
-			},
-		},
-		STOCK: {
-			DESCRIPTIONS: {
-				STOCK_CREATED: "Created new stock",
-				STOCK_UPDATED: "Updated stock",
-				STOCK_DELETED: "Deleted stock",
-			},
-		},
-		SUPPLIER: {
-			DESCRIPTIONS: {
-				SUPPLIER_CREATED: "Created new supplier",
-				SUPPLIER_UPDATED: "Updated supplier",
-				SUPPLIER_DELETED: "Deleted supplier",
-			},
-		},
-		PURCHASEORDERITEM: {
-			DESCRIPTIONS: {
-				PURCHASEORDERITEM_CREATED: "Created new purchaseorderitem",
-				PURCHASEORDERITEM_UPDATED: "Updated purchaseorderitem",
-				PURCHASEORDERITEM_DELETED: "Deleted purchaseorderitem",
-			},
-		},
-		TRANSACTION: {
-			DESCRIPTIONS: {
-				TRANSACTION_CREATED: "Created new transaction",
-				TRANSACTION_UPDATED: "Updated transaction",
-				TRANSACTION_DELETED: "Deleted transaction",
-			},
-		},
-		LOCATION: {
-			DESCRIPTIONS: {
-				LOCATION_CREATED: "Created new location",
-				LOCATION_UPDATED: "Updated location",
-				LOCATION_DELETED: "Deleted location",
-			},
-		},
-		TRANSACTIONITEM: {
-			DESCRIPTIONS: {
-				TRANSACTIONITEM_CREATED: "Created new transactionitem",
-				TRANSACTIONITEM_UPDATED: "Updated transactionitem",
-				TRANSACTIONITEM_DELETED: "Deleted transactionitem",
-			},
-		},
+		PERSON: createAuditLogEntity("person"),
+		ROLE: createAuditLogEntity("role"),
+		USER: createAuditLogEntity("user"),
+		PRODUCT: createAuditLogEntity("product"),
+		BATCH: createAuditLogEntity("batch"),
+		STOCK: createAuditLogEntity("stock"),
+		SUPPLIER: createAuditLogEntity("supplier"),
+		PURCHASEORDERITEM: createAuditLogEntity("purchaseorderitem"),
+		TRANSACTION: createAuditLogEntity("transaction"),
+		LOCATION: createAuditLogEntity("location"),
+		TRANSACTIONITEM: createAuditLogEntity("transactionitem"),
 		STOCKRECORD: {
 			DESCRIPTIONS: {
-				STOCKRECORD_CREATED: "Stock record created",
-				STOCKRECORD_UPDATED: "Stock record updated",
-				STOCKRECORD_DELETED: "Stock record deleted",
+				CREATED: "Stock record created",
+				UPDATED: "Stock record updated",
+				DELETED: "Stock record deleted",
 			},
 		},
-		DELIVERORDER: {
-			DESCRIPTIONS: {
-				DELIVERORDER_CREATED: "Created new deliverorder",
-				DELIVERORDER_UPDATED: "Updated deliverorder",
-				DELIVERORDER_DELETED: "Deleted deliverorder",
-			},
-		},
-		ORGANIZATION: {
-			DESCRIPTIONS: {
-				ORGANIZATION_CREATED: "Created new organization",
-				ORGANIZATION_UPDATED: "Updated organization",
-				ORGANIZATION_DELETED: "Deleted organization",
-			},
-		},
-		DELIVERYRECEIPT: {
-			DESCRIPTIONS: {
-				DELIVERYRECEIPT_CREATED: "Created new deliveryreceipt",
-				DELIVERYRECEIPT_UPDATED: "Updated deliveryreceipt",
-				DELIVERYRECEIPT_DELETED: "Deleted deliveryreceipt",
-			},
-		},
-		DELIVERYREQUEST: {
-			DESCRIPTIONS: {
-				DELIVERYREQUEST_CREATED: "Created new deliveryrequest",
-				DELIVERYREQUEST_UPDATED: "Updated deliveryrequest",
-				DELIVERYREQUEST_DELETED: "Deleted deliveryrequest",
-			},
-		},
-		DELIVERYREQUESTITEM: {
-			DESCRIPTIONS: {
-				DELIVERYREQUESTITEM_CREATED: "Created new deliveryrequestitem",
-				DELIVERYREQUESTITEM_UPDATED: "Updated deliveryrequestitem",
-				DELIVERYREQUESTITEM_DELETED: "Deleted deliveryrequestitem",
-			},
-		},
-		DELIVERYRECEIPTITEM: {
-			DESCRIPTIONS: {
-				DELIVERYRECEIPTITEM_CREATED: "Created new deliveryreceiptitem",
-				DELIVERYRECEIPTITEM_UPDATED: "Updated deliveryreceiptitem",
-				DELIVERYRECEIPTITEM_DELETED: "Deleted deliveryreceiptitem",
-			},
-		},
-		CATEGORY: {
-			DESCRIPTIONS: {
-				CATEGORY_CREATED: "Created new category",
-				CATEGORY_UPDATED: "Updated category",
-				CATEGORY_DELETED: "Deleted category",
-			},
-		},
-		DELIVERY: {
-			DESCRIPTIONS: {
-				DELIVERY_CREATED: "Created new delivery",
-				DELIVERY_UPDATED: "Updated delivery",
-				DELIVERY_DELETED: "Deleted delivery",
-			},
-		},
-		ITEM: {
-			DESCRIPTIONS: {
-				ITEM_CREATED: "Created new item",
-				ITEM_UPDATED: "Updated item",
-				ITEM_DELETED: "Deleted item",
-			},
-		},
-		DELIVERYITEM: {
-			DESCRIPTIONS: {
-				DELIVERYITEM_CREATED: "Created new deliveryitem",
-				DELIVERYITEM_UPDATED: "Updated deliveryitem",
-				DELIVERYITEM_DELETED: "Deleted deliveryitem",
-			},
-		},
-		SUPPLIERITEM: {
-			DESCRIPTIONS: {
-				SUPPLIERITEM_CREATED: "Created new supplieritem",
-				SUPPLIERITEM_UPDATED: "Updated supplieritem",
-				SUPPLIERITEM_DELETED: "Deleted supplieritem",
-			},
-		},
-		SUBCATEGORY: {
-			DESCRIPTIONS: {
-				SUBCATEGORY_CREATED: "Created new subcategory",
-				SUBCATEGORY_UPDATED: "Updated subcategory",
-				SUBCATEGORY_DELETED: "Deleted subcategory",
-			},
-		},
+		DELIVERORDER: createAuditLogEntity("deliverorder"),
+		ORGANIZATION: createAuditLogEntity("organization"),
+		DELIVERYRECEIPT: createAuditLogEntity("deliveryreceipt"),
+		DELIVERYREQUEST: createAuditLogEntity("deliveryrequest"),
+		DELIVERYREQUESTITEM: createAuditLogEntity("deliveryrequestitem"),
+		DELIVERYRECEIPTITEM: createAuditLogEntity("deliveryreceiptitem"),
+		CATEGORY: createAuditLogEntity("category"),
+		DELIVERY: createAuditLogEntity("delivery"),
+		ITEM: createAuditLogEntity("item"),
+		DELIVERYITEM: createAuditLogEntity("deliveryitem"),
+		SUPPLIERITEM: createAuditLogEntity("supplieritem"),
+		SUBCATEGORY: createAuditLogEntity("subcategory"),
 		PRODUCTTYPE: {
 			DESCRIPTIONS: {
-				PRODUCTTYPE_CREATED: "Product type created",
-				PRODUCTTYPE_UPDATED: "Product type updated",
-				PRODUCTTYPE_DELETED: "Product type deleted",
+				CREATED: "Product type created",
+				UPDATED: "Product type updated",
+				DELETED: "Product type deleted",
 			},
 		},
-		ALERT: {
-			DESCRIPTIONS: {
-				ALERT_CREATED: "Created new alert",
-				ALERT_UPDATED: "Updated alert",
-				ALERT_DELETED: "Deleted alert",
-			},
-		},
-		ACTIVITYLOG: {
-			DESCRIPTIONS: {
-				ACTIVITYLOG_CREATED: "Created new activitylog",
-				ACTIVITYLOG_UPDATED: "Updated activitylog",
-				ACTIVITYLOG_DELETED: "Deleted activitylog",
-			},
-		},
-		AUDITLOG: {
-			DESCRIPTIONS: {
-				AUDITLOG_CREATED: "Created new auditlog",
-				AUDITLOG_UPDATED: "Updated auditlog",
-				AUDITLOG_DELETED: "Deleted auditlog",
-			},
-		},
-		NOTIFICATION: {
-			DESCRIPTIONS: {
-				NOTIFICATION_CREATED: "Created new notification",
-				NOTIFICATION_UPDATED: "Updated notification",
-				NOTIFICATION_DELETED: "Deleted notification",
-			},
-		},
-		SYSTEMLOG: {
-			DESCRIPTIONS: {
-				SYSTEMLOG_CREATED: "Created new systemlog",
-				SYSTEMLOG_UPDATED: "Updated systemlog",
-				SYSTEMLOG_DELETED: "Deleted systemlog",
-			},
-		},
-		DELIVERYORDER: {
-			DESCRIPTIONS: {
-				DELIVERYORDER_CREATED: "Created new deliveryorder",
-				DELIVERYORDER_UPDATED: "Updated deliveryorder",
-				DELIVERYORDER_DELETED: "Deleted deliveryorder",
-			},
-		},
-		STOCKMOVEMENTITEM: {
-			DESCRIPTIONS: {
-				STOCKMOVEMENTITEM_CREATED: "Created new stockmovementitem",
-				STOCKMOVEMENTITEM_UPDATED: "Updated stockmovementitem",
-				STOCKMOVEMENTITEM_DELETED: "Deleted stockmovementitem",
-			},
-		},
-		PRICE: {
-			DESCRIPTIONS: {
-				PRICE_CREATED: "Created new price",
-				PRICE_UPDATED: "Updated price",
-				PRICE_DELETED: "Deleted price",
-			},
-		},
-		DELIVERYORDERITEM: {
-			DESCRIPTIONS: {
-				DELIVERYORDERITEM_CREATED: "Created new deliveryorderitem",
-				DELIVERYORDERITEM_UPDATED: "Updated deliveryorderitem",
-				DELIVERYORDERITEM_DELETED: "Deleted deliveryorderitem",
-			},
-		},
-		METRICS: {
-			DESCRIPTIONS: {
-				METRICS_CREATED: "Created new metrics",
-				METRICS_UPDATED: "Updated metrics",
-				METRICS_DELETED: "Deleted metrics",
-			},
-		},
-		PATIENT: {
-			DESCRIPTIONS: {
-				PATIENT_CREATED: "Created new patient",
-				PATIENT_UPDATED: "Updated patient",
-				PATIENT_DELETED: "Deleted patient",
-			},
-		},
-		MEDICINE: {
-			DESCRIPTIONS: {
-				MEDICINE_CREATED: "Created new medicine",
-				MEDICINE_UPDATED: "Updated medicine",
-				MEDICINE_DELETED: "Deleted medicine",
-			},
-		},
-		APPROVAL: {
-			DESCRIPTIONS: {
-				APPROVAL_CREATED: "Created new approval",
-				APPROVAL_UPDATED: "Updated approval",
-				APPROVAL_DELETED: "Deleted approval",
-			},
-		},
-
+		ALERT: createAuditLogEntity("alert"),
+		ACTIVITYLOG: createAuditLogEntity("activitylog"),
+		AUDITLOG: createAuditLogEntity("auditlog"),
+		NOTIFICATION: createAuditLogEntity("notification"),
+		SYSTEMLOG: createAuditLogEntity("systemlog"),
+		DELIVERYORDER: createAuditLogEntity("deliveryorder"),
+		STOCKMOVEMENTITEM: createAuditLogEntity("stockmovementitem"),
+		PRICE: createAuditLogEntity("price"),
+		DELIVERYORDERITEM: createAuditLogEntity("deliveryorderitem"),
+		METRICS: createAuditLogEntity("metrics"),
+		PATIENT: createAuditLogEntity("patient"),
+		MEDICINE: createAuditLogEntity("medicine"),
+		APPROVAL: createAuditLogEntity("approval"),
 		TEMPLATE: {
 			DESCRIPTIONS: {
-				TEMPLATE_CREATED: "Created new template",
-				TEMPLATE_UPDATED: "Updated template",
-				TEMPLATE_DELETED: "Deleted template",
+				...createAuditLogEntity("template").DESCRIPTIONS,
 				USER_CREATED: "Created new user",
 				USER_UPDATED: "Updated user",
 				USER_DELETED: "Deleted user",
