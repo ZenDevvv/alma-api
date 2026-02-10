@@ -6,13 +6,9 @@ import { isValidObjectId } from "mongoose";
 export const Role = z.enum(["user", "admin", "viewer"]);
 
 export const SubRole = z.enum([
-	"patient",
-	"staff",
-	"approver",
-	"malasakit",
-	"operator",
-	"supervisor",
-	"super",
+	"student",
+	"instructor",
+	"org_admin",
 ]);
 
 export const UserStatus = z.enum(["active", "inactive", "suspended", "archived"]);

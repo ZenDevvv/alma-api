@@ -36,14 +36,16 @@ export const controller = (prisma: PrismaClient) => {
 				role,
 				subRole,
 				orgId,
-				personalInfo,
-				contactInfo,
-				addresses,
-				languages,
-				preferredLanguage,
-				documents,
-				emergencyContacts,
-				kycStatus,
+				person: {
+					personalInfo,
+					contactInfo,
+					addresses,
+					languages,
+					preferredLanguage,
+					documents,
+					emergencyContacts,
+					kycStatus,
+				},
 			} = validationResult.data;
 
 			authLogger.info(`${config.INFO.USER.REGISTERING_USER}: ${email}`);

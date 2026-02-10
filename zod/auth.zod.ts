@@ -10,7 +10,18 @@ import {
 	KYCStatus,
 } from "./person.zod";
 
-// ─── Register Schema (User fields + Person fields) ─────────────────
+// ─── Register Schema (User fields + nested Person object) ───────────
+
+export const RegisterPersonSchema = z.object({
+	personalInfo: PersonalInfoSchema,
+	contactInfo: z.array(ContactSchema).optional().nullable(),
+	addresses: z.array(AddressSchema).optional().nullable(),
+	languages: z.array(LanguageSchema).optional().nullable(),
+	preferredLanguage: z.string().optional().nullable(),
+	documents: DocumentsSchema,
+	emergencyContacts: z.array(EmergencyContactSchema).optional().nullable(),
+	kycStatus: KYCStatus.default("PENDING").optional(),
+});
 
 export const RegisterSchema = z.object({
 	// User fields
@@ -29,15 +40,8 @@ export const RegisterSchema = z.object({
 	orgId: z.string().optional().nullable(),
 	departmentId: z.string().optional().nullable(),
 
-	// Person fields
-	personalInfo: PersonalInfoSchema,
-	contactInfo: z.array(ContactSchema).optional().nullable(),
-	addresses: z.array(AddressSchema).optional().nullable(),
-	languages: z.array(LanguageSchema).optional().nullable(),
-	preferredLanguage: z.string().optional().nullable(),
-	documents: DocumentsSchema,
-	emergencyContacts: z.array(EmergencyContactSchema).optional().nullable(),
-	kycStatus: KYCStatus.default("PENDING").optional(),
+	// Person fields (nested)
+	person: RegisterPersonSchema,
 });
 
 export type Register = z.infer<typeof RegisterSchema>;

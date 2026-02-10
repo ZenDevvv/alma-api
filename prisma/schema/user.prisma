@@ -43,12 +43,8 @@ enum Role {
 }
 
 enum SubRole {
-  patient
-  staff
-  approver
-  malasakit
-  operator
-  supervisor
-  super
+  student
+  instructor
+  org_admin
 }
 
