@@ -41,7 +41,7 @@ export const controller = (prisma: PrismaClient) => {
 
 		const validation = CreateOrganizationSchema.safeParse(requestData);
 		if (!validation.success) {
-			const formattedErrors = formatZodErrors(validation.error.format());
+			const formattedErrors = formatZodErrors(validation.error);
 			organizationLogger.error(`Validation failed: ${JSON.stringify(formattedErrors)}`);
 			const errorResponse = buildErrorResponse("Validation failed", 400, formattedErrors);
 			res.status(400).json(errorResponse);
@@ -279,7 +279,7 @@ export const controller = (prisma: PrismaClient) => {
 			const validationResult = UpdateOrganizationSchema.safeParse(req.body);
 
 			if (!validationResult.success) {
-				const formattedErrors = formatZodErrors(validationResult.error.format());
+				const formattedErrors = formatZodErrors(validationResult.error);
 				organizationLogger.error(`Validation failed: ${JSON.stringify(formattedErrors)}`);
 				const errorResponse = buildErrorResponse("Validation failed", 400, formattedErrors);
 				res.status(400).json(errorResponse);

@@ -42,7 +42,7 @@ export const controller = (prisma: PrismaClient) => {
 
 		const validation = CreateUserSchema.safeParse(requestData);
 		if (!validation.success) {
-			const formattedErrors = formatZodErrors(validation.error.format());
+			const formattedErrors = formatZodErrors(validation.error);
 			userLogger.error(`Validation failed: ${JSON.stringify(formattedErrors)}`);
 			const errorResponse = buildErrorResponse("Validation failed", 400, formattedErrors);
 			res.status(400).json(errorResponse);
@@ -270,7 +270,7 @@ export const controller = (prisma: PrismaClient) => {
 			const validationResult = UpdateUserSchema.safeParse(req.body);
 
 			if (!validationResult.success) {
-				const formattedErrors = formatZodErrors(validationResult.error.format());
+				const formattedErrors = formatZodErrors(validationResult.error);
 				userLogger.error(`Validation failed: ${JSON.stringify(formattedErrors)}`);
 				const errorResponse = buildErrorResponse("Validation failed", 400, formattedErrors);
 				res.status(400).json(errorResponse);

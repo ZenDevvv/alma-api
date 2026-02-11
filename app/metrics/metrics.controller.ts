@@ -45,7 +45,7 @@ export const controller = (prisma: PrismaClient) => {
 
 		const validation = CreateMetricsSchema.safeParse(requestData);
 		if (!validation.success) {
-			const formattedErrors = formatZodErrors(validation.error.format());
+			const formattedErrors = formatZodErrors(validation.error);
 			metricsLogger.error(`Validation failed: ${JSON.stringify(formattedErrors)}`);
 			const errorResponse = buildErrorResponse("Validation failed", 400, formattedErrors);
 			res.status(400).json(errorResponse);
@@ -283,7 +283,7 @@ export const controller = (prisma: PrismaClient) => {
 			const validationResult = UpdateMetricsSchema.safeParse(req.body);
 
 			if (!validationResult.success) {
-				const formattedErrors = formatZodErrors(validationResult.error.format());
+				const formattedErrors = formatZodErrors(validationResult.error);
 				metricsLogger.error(`Validation failed: ${JSON.stringify(formattedErrors)}`);
 				const errorResponse = buildErrorResponse("Validation failed", 400, formattedErrors);
 				res.status(400).json(errorResponse);
@@ -401,7 +401,7 @@ export const controller = (prisma: PrismaClient) => {
 			const validation = CollectMetricsSchema.safeParse(req.body);
 
 			if (!validation.success) {
-				const formattedErrors = formatZodErrors(validation.error.format());
+				const formattedErrors = formatZodErrors(validation.error);
 				metricsLogger.error(`Validation failed: ${JSON.stringify(formattedErrors)}`);
 				const errorResponse = buildErrorResponse("Validation failed", 400, formattedErrors);
 				res.status(400).json(errorResponse);

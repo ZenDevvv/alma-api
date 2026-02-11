@@ -254,7 +254,7 @@ export const controller = (prisma: PrismaClient) => {
 			const validationResult = CreatePersonSchema.safeParse(req.body);
 
 			if (!validationResult.success) {
-				const formattedErrors = formatZodErrors(validationResult.error.format());
+				const formattedErrors = formatZodErrors(validationResult.error);
 				personLogger.error(`Validation failed: ${JSON.stringify(formattedErrors)}`);
 				const errorResponse = buildErrorResponse("Validation failed", 400, formattedErrors);
 				res.status(400).json(errorResponse);
@@ -393,7 +393,7 @@ export const controller = (prisma: PrismaClient) => {
 			const validationResult = CreatePersonSchema.partial().safeParse(req.body);
 
 			if (!validationResult.success) {
-				const formattedErrors = formatZodErrors(validationResult.error.format());
+				const formattedErrors = formatZodErrors(validationResult.error);
 				const errorResponse = buildErrorResponse("Validation failed", 400, formattedErrors);
 				personLogger.error(`Validation failed: ${JSON.stringify(formattedErrors)}`);
 				res.status(400).json(errorResponse);
