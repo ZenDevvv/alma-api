@@ -6,6 +6,7 @@ import { PrismaClient } from "./generated/prisma";
 import { config } from "./config/config";
 import openApiSpecs from "./docs/openApiSpecs";
 import verifyToken from "./middleware/verifyToken";
+import type { AuthRequest } from "./middleware/verifyToken";
 import { connectAllDatabases, disconnectAllDatabases } from "./config/database";
 import { securityMiddleware, devSecurityMiddleware, authSecurityMiddleware } from "./middleware/security";
 import { hidePasswordMiddleware } from "./middleware/passwordSanitise";
@@ -148,7 +149,7 @@ try {
 		if (req.path.startsWith("/auth")) {
 			return next();
 		}
-		verifyToken(req, res, () => {
+		verifyToken(req as AuthRequest, res, () => {
 			next();
 		});
 	});
