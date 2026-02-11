@@ -1,16 +1,15 @@
 model Organization {
-  id               String            @id @default(auto()) @map("_id") @db.ObjectId
-  name             String
-  description      String?
-  code             String
-  logo             String?
-  background       String?
-  isDeleted        Boolean           @default(false)
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
-  users            User[]
-  persons          Person[]
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String?
+  code        String   @unique
+  logo        String?
+  background  String?
+  isDeleted   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  users       User[]
+  persons     Person[]
 
-  @@index([code], name: "idx_organization_code")
   @@index([name], name: "idx_organization_name")
 }

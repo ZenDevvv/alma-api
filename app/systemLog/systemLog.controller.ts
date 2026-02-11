@@ -11,7 +11,7 @@ import {
 } from "../../helper/query-builder";
 import { buildSuccessResponse, buildPagination } from "../../helper/success-handler";
 import { groupDataByField } from "../../helper/dataGrouping";
-import { buildErrorResponse, formatZodErrors } from "../../helper/error-handler";
+import { buildErrorResponse, formatZodErrors, handlePrismaError } from "../../helper/error-handler";
 import { CreateSystemLogSchema, UpdateSystemLogSchema } from "../../zod/systemLog.zod";
 import { logActivity } from "../../utils/activityLogger";
 import { logAudit } from "../../utils/auditLogger";
@@ -94,11 +94,8 @@ export const controller = (prisma: PrismaClient) => {
 			res.status(201).json(successResponse);
 		} catch (error) {
 			systemLogLogger.error(`${config.ERROR.SYSTEMLOG.CREATE_FAILED}: ${error}`);
-			const errorResponse = buildErrorResponse(
-				config.ERROR.COMMON.INTERNAL_SERVER_ERROR,
-				500,
-			);
-			res.status(500).json(errorResponse);
+			const errorResponse = handlePrismaError(error);
+			res.status(errorResponse.code).json(errorResponse);
 		}
 	};
 	const getAll = async (req: Request, res: Response, _next: NextFunction) => {
@@ -172,9 +169,8 @@ export const controller = (prisma: PrismaClient) => {
 			);
 		} catch (error) {
 			systemLogLogger.error(`${config.ERROR.SYSTEMLOG.GET_ALL_FAILED}: ${error}`);
-			res.status(500).json(
-				buildErrorResponse(config.ERROR.COMMON.INTERNAL_SERVER_ERROR, 500),
-			);
+			const errorResponse = handlePrismaError(error);
+			res.status(errorResponse.code).json(errorResponse);
 		}
 	};
 	const getById = async (req: Request, res: Response, _next: NextFunction) => {
@@ -256,11 +252,8 @@ export const controller = (prisma: PrismaClient) => {
 			res.status(200).json(successResponse);
 		} catch (error) {
 			systemLogLogger.error(`${config.ERROR.SYSTEMLOG.ERROR_GETTING}: ${error}`);
-			const errorResponse = buildErrorResponse(
-				config.ERROR.COMMON.INTERNAL_SERVER_ERROR,
-				500,
-			);
-			res.status(500).json(errorResponse);
+			const errorResponse = handlePrismaError(error);
+			res.status(errorResponse.code).json(errorResponse);
 		}
 	};
 
@@ -334,11 +327,8 @@ export const controller = (prisma: PrismaClient) => {
 			res.status(200).json(successResponse);
 		} catch (error) {
 			systemLogLogger.error(`${config.ERROR.SYSTEMLOG.ERROR_UPDATING}: ${error}`);
-			const errorResponse = buildErrorResponse(
-				config.ERROR.COMMON.INTERNAL_SERVER_ERROR,
-				500,
-			);
-			res.status(500).json(errorResponse);
+			const errorResponse = handlePrismaError(error);
+			res.status(errorResponse.code).json(errorResponse);
 		}
 	};
 
@@ -386,11 +376,8 @@ export const controller = (prisma: PrismaClient) => {
 			res.status(200).json(successResponse);
 		} catch (error) {
 			systemLogLogger.error(`${config.ERROR.SYSTEMLOG.DELETE_FAILED}: ${error}`);
-			const errorResponse = buildErrorResponse(
-				config.ERROR.COMMON.INTERNAL_SERVER_ERROR,
-				500,
-			);
-			res.status(500).json(errorResponse);
+			const errorResponse = handlePrismaError(error);
+			res.status(errorResponse.code).json(errorResponse);
 		}
 	};
 

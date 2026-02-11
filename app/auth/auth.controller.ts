@@ -7,7 +7,7 @@ import { RegisterSchema, LoginSchema, UpdatePasswordSchema } from "../../zod/aut
 import { config } from "../../config/constant";
 import { logActivity } from "../../utils/activityLogger";
 import { logAudit } from "../../utils/auditLogger";
-import { buildErrorResponse, formatZodErrors } from "../../helper/error-handler";
+import { buildErrorResponse, formatZodErrors, handlePrismaError } from "../../helper/error-handler";
 import { buildSuccessResponse } from "../../helper/success-handler";
 
 const logger = getLogger();
@@ -137,9 +137,8 @@ export const controller = (prisma: PrismaClient) => {
 			res.status(201).json(successResponse);
 		} catch (error: any) {
 			authLogger.error(`Error during registration: ${error}`);
-			const errorResponse = buildErrorResponse("Error during registration", 500);
-
-			res.status(500).json(errorResponse);
+			const errorResponse = handlePrismaError(error);
+			res.status(errorResponse.code).json(errorResponse);
 		}
 	};
 
@@ -240,8 +239,8 @@ export const controller = (prisma: PrismaClient) => {
 			});
 		} catch (error: any) {
 			authLogger.error(`Error during login: ${error}`);
-			const errorResponse = buildErrorResponse("Error during login", 500);
-			res.status(500).json(errorResponse);
+			const errorResponse = handlePrismaError(error);
+			res.status(errorResponse.code).json(errorResponse);
 		}
 	};
 
@@ -306,11 +305,8 @@ export const controller = (prisma: PrismaClient) => {
 			res.status(200).json(successResponse);
 		} catch (error: any) {
 			authLogger.error(`Error during password update: ${error}`);
-			const errorResponse = buildErrorResponse("Error during password update", 500, [
-				{ field: "server", message: error.message },
-			]);
-
-			res.status(500).json(errorResponse);
+			const errorResponse = handlePrismaError(error);
+			res.status(errorResponse.code).json(errorResponse);
 		}
 	};
 
@@ -342,12 +338,8 @@ export const controller = (prisma: PrismaClient) => {
 			res.status(200).json(successResponse);
 		} catch (error: any) {
 			authLogger.error(`Error during logout: ${error}`);
-
-			const errorResponse = buildErrorResponse("Error during logout", 500, [
-				{ field: "server", message: error.message },
-			]);
-
-			res.status(500).json(errorResponse);
+			const errorResponse = handlePrismaError(error);
+			res.status(errorResponse.code).json(errorResponse);
 		}
 	};
 

@@ -11,7 +11,7 @@ import {
 } from "../../helper/query-builder";
 import { buildSuccessResponse, buildPagination } from "../../helper/success-handler";
 import { groupDataByField } from "../../helper/dataGrouping";
-import { buildErrorResponse, formatZodErrors } from "../../helper/error-handler";
+import { buildErrorResponse, formatZodErrors, handlePrismaError } from "../../helper/error-handler";
 import { CreateTemplateSchema, UpdateTemplateSchema } from "../../zod/template.zod";
 import { logActivity } from "../../utils/activityLogger";
 import { logAudit } from "../../utils/auditLogger";
@@ -98,11 +98,8 @@ export const controller = (prisma: PrismaClient) => {
 			res.status(201).json(successResponse);
 		} catch (error) {
 			templateLogger.error(`${config.ERROR.TEMPLATE.CREATE_FAILED}: ${error}`);
-			const errorResponse = buildErrorResponse(
-				config.ERROR.COMMON.INTERNAL_SERVER_ERROR,
-				500,
-			);
-			res.status(500).json(errorResponse);
+			const errorResponse = handlePrismaError(error);
+			res.status(errorResponse.code).json(errorResponse);
 		}
 	};
 	const getAll = async (req: Request, res: Response, _next: NextFunction) => {
@@ -176,9 +173,8 @@ export const controller = (prisma: PrismaClient) => {
 			);
 		} catch (error) {
 			templateLogger.error(`${config.ERROR.TEMPLATE.GET_ALL_FAILED}: ${error}`);
-			res.status(500).json(
-				buildErrorResponse(config.ERROR.COMMON.INTERNAL_SERVER_ERROR, 500),
-			);
+			const errorResponse = handlePrismaError(error);
+			res.status(errorResponse.code).json(errorResponse);
 		}
 	};
 	const getById = async (req: Request, res: Response, _next: NextFunction) => {
@@ -257,11 +253,8 @@ export const controller = (prisma: PrismaClient) => {
 			res.status(200).json(successResponse);
 		} catch (error) {
 			templateLogger.error(`${config.ERROR.TEMPLATE.ERROR_GETTING}: ${error}`);
-			const errorResponse = buildErrorResponse(
-				config.ERROR.COMMON.INTERNAL_SERVER_ERROR,
-				500,
-			);
-			res.status(500).json(errorResponse);
+			const errorResponse = handlePrismaError(error);
+			res.status(errorResponse.code).json(errorResponse);
 		}
 	};
 
@@ -335,11 +328,8 @@ export const controller = (prisma: PrismaClient) => {
 			res.status(200).json(successResponse);
 		} catch (error) {
 			templateLogger.error(`${config.ERROR.TEMPLATE.ERROR_UPDATING}: ${error}`);
-			const errorResponse = buildErrorResponse(
-				config.ERROR.COMMON.INTERNAL_SERVER_ERROR,
-				500,
-			);
-			res.status(500).json(errorResponse);
+			const errorResponse = handlePrismaError(error);
+			res.status(errorResponse.code).json(errorResponse);
 		}
 	};
 
@@ -387,11 +377,8 @@ export const controller = (prisma: PrismaClient) => {
 			res.status(200).json(successResponse);
 		} catch (error) {
 			templateLogger.error(`${config.ERROR.TEMPLATE.DELETE_FAILED}: ${error}`);
-			const errorResponse = buildErrorResponse(
-				config.ERROR.COMMON.INTERNAL_SERVER_ERROR,
-				500,
-			);
-			res.status(500).json(errorResponse);
+			const errorResponse = handlePrismaError(error);
+			res.status(errorResponse.code).json(errorResponse);
 		}
 	};
 

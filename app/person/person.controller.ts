@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { PrismaClient, Prisma } from "../../generated/prisma";
 import { getLogger } from "../../helper/logger";
 import { config } from "../../config/constant";
-import { buildErrorResponse, formatZodErrors } from "../../helper/error-handler";
+import { buildErrorResponse, formatZodErrors, handlePrismaError } from "../../helper/error-handler";
 import { buildPagination, buildSuccessResponse } from "../../helper/success-handler";
 import { CreatePersonSchema } from "../../zod/person.zod";
 import { validateQueryParams } from "../../helper/validation-helper";
@@ -109,11 +109,8 @@ export const controller = (prisma: PrismaClient) => {
 			res.status(200).json(successResponse);
 		} catch (error: any) {
 			personLogger.error(`${config.ERROR.PERSON.ERROR_GETTING_USER}: ${error}`);
-			const errorResponse = buildErrorResponse(
-				config.ERROR.PERSON.INTERNAL_SERVER_ERROR,
-				500,
-			);
-			res.status(500).json(errorResponse);
+			const errorResponse = handlePrismaError(error);
+			res.status(errorResponse.code).json(errorResponse);
 		}
 	};
 
@@ -243,9 +240,8 @@ export const controller = (prisma: PrismaClient) => {
 			);
 		} catch (error: any) {
 			personLogger.error(`${config.ERROR.PERSON.ERROR_GETTING_USER}: ${error}`);
-			res.status(500).json(
-				buildErrorResponse(config.ERROR.PERSON.INTERNAL_SERVER_ERROR, 500),
-			);
+			const errorResponse = handlePrismaError(error);
+			res.status(errorResponse.code).json(errorResponse);
 		}
 	};
 
@@ -368,11 +364,8 @@ export const controller = (prisma: PrismaClient) => {
 			res.status(201).json(successResponse);
 		} catch (error: any) {
 			personLogger.error(`${config.ERROR.PERSON.INTERNAL_SERVER_ERROR}: ${error}`);
-			const errorResponse = buildErrorResponse(
-				config.ERROR.PERSON.INTERNAL_SERVER_ERROR,
-				500,
-			);
-			res.status(500).json(errorResponse);
+			const errorResponse = handlePrismaError(error);
+			res.status(errorResponse.code).json(errorResponse);
 		}
 	};
 
@@ -485,11 +478,8 @@ export const controller = (prisma: PrismaClient) => {
 			res.status(200).json(updatedPerson);
 		} catch (error: any) {
 			personLogger.error(`${config.ERROR.PERSON.ERROR_UPDATING_USER}: ${error}`);
-			const errorResponse = buildErrorResponse(
-				config.ERROR.PERSON.INTERNAL_SERVER_ERROR,
-				500,
-			);
-			res.status(500).json(errorResponse);
+			const errorResponse = handlePrismaError(error);
+			res.status(errorResponse.code).json(errorResponse);
 		}
 	};
 
@@ -563,11 +553,8 @@ export const controller = (prisma: PrismaClient) => {
 			res.status(200).json(successResponse);
 		} catch (error: any) {
 			personLogger.error(`${config.ERROR.PERSON.ERROR_DELETING_USER}: ${error}`);
-			const errorResponse = buildErrorResponse(
-				config.ERROR.PERSON.INTERNAL_SERVER_ERROR,
-				500,
-			);
-			res.status(500).json(errorResponse);
+			const errorResponse = handlePrismaError(error);
+			res.status(errorResponse.code).json(errorResponse);
 		}
 	};
 
