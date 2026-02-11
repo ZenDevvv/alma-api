@@ -20,6 +20,7 @@ import { notificationModule } from "./app/notification";
 import { systemLogModule } from "./app/systemLog";
 import { metricsModule } from "./app/metrics";
 import { organizationModule } from "./app/organization";
+import { courseModule } from "./app/course";
 
 // Log uncaught exceptions and unhandled promise rejections
 process.on("uncaughtException", (err) => {
@@ -80,6 +81,7 @@ try {
 	const systemlog = systemLogModule(prisma);
 	const metrics = metricsModule(prisma);
 	const organization = organizationModule(prisma);
+	const course = courseModule(prisma);
 
 	// Health check endpoint
 	app.get("/", (req: Request, res: Response) => {
@@ -164,6 +166,7 @@ try {
 	app.use(config.baseApiPath, systemlog);
 	app.use(config.baseApiPath, metrics);
 	app.use(config.baseApiPath, organization);
+	app.use(config.baseApiPath, course);
 
 	server.listen(config.port, async () => {
 		await connectAllDatabases();
