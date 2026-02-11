@@ -1,5 +1,13 @@
 import { Router, Request, Response, NextFunction } from "express";
 import { cache, cacheShort, cacheMedium, cacheUser } from "../../middleware/cache";
+import { uploadFiles } from "../../middleware/upload";
+
+const uploadOrgImages = uploadFiles({
+	fields: [
+		{ name: "logo", folder: "organizations/logos" },
+		{ name: "background", folder: "organizations/backgrounds" },
+	],
+});
 
 interface IController {
 	getById(req: Request, res: Response, next: NextFunction): Promise<void>;
@@ -308,7 +316,7 @@ export const router = (route: Router, controller: IController): Router => {
 	 *       500:
 	 *         $ref: '#/components/responses/InternalServerError'
 	 */
-	routes.post("/", controller.create);
+	routes.post("/", uploadOrgImages, controller.create);
 
 	/**
 	 * @openapi
@@ -378,7 +386,7 @@ export const router = (route: Router, controller: IController): Router => {
 	 *       500:
 	 *         $ref: '#/components/responses/InternalServerError'
 	 */
-	routes.patch("/:id", controller.update);
+	routes.patch("/:id", uploadOrgImages, controller.update);
 
 	/**
 	 * @openapi

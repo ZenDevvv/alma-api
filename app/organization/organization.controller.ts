@@ -49,7 +49,9 @@ export const controller = (prisma: PrismaClient) => {
 		}
 
 		try {
-			const organization = await prisma.organization.create({ data: validation.data });
+			const createData = { ...validation.data, ...req.uploadedFiles };
+
+			const organization = await prisma.organization.create({ data: createData });
 			organizationLogger.info(`Organization created successfully: ${organization.id}`);
 
 			logActivity(req, {
@@ -308,7 +310,7 @@ export const controller = (prisma: PrismaClient) => {
 				return;
 			}
 
-			const prismaData = { ...validatedData };
+			const prismaData = { ...validatedData, ...req.uploadedFiles };
 
 			const updatedOrganization = await prisma.organization.update({
 				where: { id },

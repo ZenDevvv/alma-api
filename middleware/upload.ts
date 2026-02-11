@@ -1,68 +1,141 @@
+import { Request, Response, NextFunction } from "express";
 import multer from "multer";
-import { Request } from "express";
+import uploadToCloudinary from "../helper/cloudinary-helper";
+import "../config/cloudinary.config";
 
-// Configure multer for memory storage
+interface FieldConfig {
+	name: string;
+	maxCount?: number;
+	folder: string;
+	required?: boolean;
+}
+
+interface UploadConfig {
+	fields: FieldConfig[];
+	fileSizeLimit?: number;
+}
+
+declare global {
+	namespace Express {
+		interface Request {
+			uploadedFiles?: Record<string, string>;
+		}
+	}
+}
+
 const storage = multer.memoryStorage();
 
-// File filter function
-const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
-	// Check if file is an image
+const imageFilter = (_req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
 	if (file.mimetype.startsWith("image/")) {
 		cb(null, true);
 	} else {
-		cb(new Error("Only image files are allowed!"));
+		cb(new Error(`Only image files are allowed. Received: ${file.mimetype}`));
 	}
 };
 
-// Create multer instance
-const upload = multer({
-	storage: storage,
-	fileFilter: fileFilter,
-	limits: {
-		fileSize: 10 * 1024 * 1024, // 10MB limit per file
-		files: 10, // Maximum 10 files
-	},
-});
+const csvFilter = (_req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+	if (file.mimetype === "text/csv" || file.originalname.endsWith(".csv")) {
+		cb(null, true);
+	} else {
+		cb(new Error("Only CSV files are allowed."));
+	}
+};
 
-// Export different upload configurations
-export const uploadSingle = upload.single("image");
-export const uploadMultiple = upload.array("images", 10); // Maximum 10 images
-export const uploadFields = upload.fields([
-	{ name: "images", maxCount: 10 },
-	{ name: "thumbnails", maxCount: 5 },
-]);
-export const uploadOrganizationFiles = upload.fields([
-	{ name: "logo", maxCount: 1 },
-	{ name: "background", maxCount: 1 },
-]);
+/**
+ * Reusable upload middleware that handles multer parsing + Cloudinary upload.
+ *
+ * Usage in routes:
+ *   router.post("/", uploadFiles({
+ *     fields: [
+ *       { name: "logo", folder: "organizations/logos" },
+ *       { name: "background", folder: "organizations/backgrounds" },
+ *     ],
+ *   }), controller.create);
+ *
+ * After this middleware, `req.uploadedFiles` contains { fieldName: cloudinaryUrl }
+ * e.g. { logo: "https://res.cloudinary.com/...", background: "https://res.cloudinary.com/..." }
+ */
+export const uploadFiles = (config: UploadConfig) => {
+	const multerFields = config.fields.map((f) => ({
+		name: f.name,
+		maxCount: f.maxCount || 1,
+	}));
 
-export const uploadUserFiles = upload.fields([{ name: "avatar", maxCount: 1 }]);
+	const upload = multer({
+		storage,
+		fileFilter: imageFilter,
+		limits: {
+			fileSize: config.fileSizeLimit || 10 * 1024 * 1024,
+		},
+	});
 
-// New upload configuration for facility images (1-5 images)
-export const uploadFacilityImages = upload.array("images", 5);
+	const multerMiddleware = upload.fields(multerFields);
 
-// Upload configuration for room type images (multiple images)
-export const uploadRoomTypeImages = upload.array("images", 10); // Maximum 10 images for room types
+	return (req: Request, res: Response, next: NextFunction) => {
+		multerMiddleware(req, res, async (err: any) => {
+			if (err) {
+				res.status(400).json({ success: false, message: err.message });
+				return;
+			}
 
-export const uploadFacilityTypeImages = upload.array("images", 10); // Maximum 10 images for facility types
+			const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
+			if (!files) {
+				next();
+				return;
+			}
 
-// Upload configuration for CSV files
-export const uploadCSV = multer({
-	storage: storage,
-	fileFilter: (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
-		// Check if file is a CSV
-		if (file.mimetype === "text/csv" || file.originalname.endsWith(".csv")) {
-			cb(null, true);
-		} else {
-			cb(new Error("Only CSV files are allowed!"));
-		}
-	},
-	limits: {
-		fileSize: 50 * 1024 * 1024, // 50MB limit for CSV files
-		files: 1, // Maximum 1 CSV file
-	},
-}).single("file");
-// Flexible upload for submissions - accepts any field name
-export const uploadSubmissionFiles = upload.any();
+			try {
+				req.uploadedFiles = {};
 
-export default upload;
+				const uploadPromises = config.fields
+					.filter((field) => files[field.name]?.length)
+					.map(async (field) => {
+						const file = files[field.name][0];
+						const result = await uploadToCloudinary(file.buffer, {
+							folder: field.folder,
+							public_id: `${field.name}-${Date.now()}`,
+						});
+						req.uploadedFiles![field.name] = result.secure_url;
+					});
+
+				await Promise.all(uploadPromises);
+
+				// Check required fields
+				for (const field of config.fields) {
+					if (field.required && !req.uploadedFiles[field.name]) {
+						res.status(400).json({
+							success: false,
+							message: `${field.name} is required`,
+						});
+						return;
+					}
+				}
+
+				next();
+			} catch (error: any) {
+				res.status(500).json({
+					success: false,
+					message: "Failed to upload files",
+					error: error.message,
+				});
+			}
+		});
+	};
+};
+
+/**
+ * CSV upload middleware (no Cloudinary, just multer parsing).
+ * File available at req.file after this middleware.
+ */
+export const uploadCSV = () => {
+	const upload = multer({
+		storage,
+		fileFilter: csvFilter,
+		limits: {
+			fileSize: 50 * 1024 * 1024,
+			files: 1,
+		},
+	});
+
+	return upload.single("file");
+};

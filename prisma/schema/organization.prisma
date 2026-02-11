@@ -3,6 +3,8 @@ model Organization {
   name             String
   description      String?
   code             String
+  logo             String?
+  background       String?
   isDeleted        Boolean           @default(false)
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
