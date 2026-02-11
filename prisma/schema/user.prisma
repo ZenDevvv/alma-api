@@ -6,11 +6,11 @@ enum UserStatus {
 }
 
 model User {
-  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  id String @id @default(auto()) @map("_id") @db.ObjectId
 
   avatar   String?
-  userName String?  @unique
-  email    String   @unique
+  userName String? @unique
+  email    String  @unique
   password String
   role     Role
   subRole  SubRole
@@ -20,18 +20,36 @@ model User {
   lastLogin   DateTime?
   loginMethod String?
 
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   orgId        String?       @db.ObjectId
   organization Organization? @relation(fields: [orgId], references: [id])
 
+  personId String? @unique @db.ObjectId
+  person   Person? @relation(fields: [personId], references: [id], onDelete: Cascade)
 
-  personId String?  @unique @db.ObjectId
-  person   Person?  @relation(fields: [personId], references: [id], onDelete: Cascade)
+  activityLogs ActivityLog[]
+  auditLogs    AuditLog[]
 
-  activityLogs    ActivityLog[]
-  auditLogs       AuditLog[]
+  // --- LMS Relations ---
+  // Instructor relations
+  instructedSections Section[]      @relation("sectionInstructor")
+  sectionStaff       SectionStaff[] @relation("sectionStaff")
+
+  // Student relations
+  enrollments      Enrollment[]     @relation("enrollments")
+  submissions      Submission[]     @relation("submissions")
+  attendances      Attendance[]     @relation("attendances")
+  grades           Grade[]          @relation("grades")
+  moduleProgresses ModuleProgress[] @relation("moduleProgress")
+  lessonProgresses LessonProgress[] @relation("lessonProgress")
+
+  // Content authoring
+  sectionAnnouncements SectionAnnouncement[] @relation("sectionAnnouncements")
+  discussionThreads    DiscussionThread[]    @relation("discussionThreads")
+  discussionReplies    DiscussionReply[]     @relation("discussionReplies")
+  createdRubrics       Rubric[]              @relation("createdRubrics")
 
   @@map("users")
 }
@@ -48,4 +66,3 @@ enum SubRole {
   org_admin
   superadmin
 }
-

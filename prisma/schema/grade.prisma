@@ -1,0 +1,96 @@
+// GradeConfig — defines grading categories and weights per section
+// e.g., Quizzes 20%, Assignments 30%, Exams 50%
+
+enum GradingMethod {
+  points // Raw points-based
+  letter // A-F letter grade
+  passfail // Pass/Fail only
+}
+
+enum GradingScale {
+  numerical_1_5 // 1.0 - 5.0
+  letter_af // A, B, C, D, F
+  percentage // 0-100%
+  custom
+}
+
+model GradeConfig {
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  name String // e.g., "Quizzes", "Assignments", "Final Exam"
+
+  // Weight as percentage (all configs in a section should sum to 100)
+  weight Float // e.g., 20.0 for 20%
+
+  // --- Relations ---
+  sectionId String  @db.ObjectId
+  section   Section @relation(fields: [sectionId], references: [id])
+
+  assessments Assessment[]
+
+  // --- Audit ---
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // --- Indexes ---
+  @@index([sectionId])
+  @@map("grade_configs")
+}
+
+// Grade — a student's final computed grade for a section
+enum GradeStatus {
+  draft // Computed but not released
+  published // Visible to student
+}
+
+model Grade {
+  id     String      @id @default(auto()) @map("_id") @db.ObjectId
+  status GradeStatus @default(draft)
+
+  // Computed values
+  totalScore  Float? // Weighted total score
+  percentage  Float? // Final percentage
+  letterGrade String? // e.g., "A", "B+", "3.0"
+  gpa         Float? // Grade point value
+
+  // Override
+  isOverridden   Boolean @default(false)
+  overrideReason String?
+  overriddenBy   String? @db.ObjectId
+
+  // --- Relations ---
+  sectionId String @db.ObjectId
+
+  studentId String @db.ObjectId
+  student   User   @relation("grades", fields: [studentId], references: [id])
+
+  // --- Audit ---
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // --- Indexes ---
+  @@unique([sectionId, studentId])
+  @@index([studentId])
+  @@map("grades")
+}
+
+// SectionGradingConfig — section-level grading settings
+model SectionGradingConfig {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  gradingMethod GradingMethod @default(points)
+  gradingScale  GradingScale  @default(percentage)
+  passingGrade  Float         @default(60) // Minimum to pass (percentage or points)
+  roundingRule  String        @default("round_half_up") // round_half_up, round_up, round_down, truncate
+
+  // Custom grading scale (when gradingScale = custom)
+  customScale Json? // e.g., [{ "min": 90, "max": 100, "grade": "A" }, ...]
+
+  // --- Relations ---
+  sectionId String @unique @db.ObjectId
+
+  // --- Audit ---
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("section_grading_configs")
+}

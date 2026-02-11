@@ -1,0 +1,102 @@
+// Section — a specific offering of a course within an academic term
+// Terminology: "Section" (Education), "Cohort" (Corporate), "Class" (Government), "Batch" (Bootcamp)
+
+enum SectionStatus {
+  draft
+  active
+  completed
+  archived
+}
+
+type Schedule {
+  dayOfWeek String // e.g., "Monday", "Tuesday"
+  startTime String // e.g., "09:00"
+  endTime   String // e.g., "10:30"
+  room      String? // e.g., "Room 301", "Online"
+  location  String? // e.g., "Building A"
+}
+
+model Section {
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  name        String // e.g., "Section A", "Online Cohort 1"
+  code        String // e.g., "CS101-A-F2026"
+  description String?
+  status      SectionStatus @default(draft)
+
+  // Capacity
+  capacity        Int     @default(30)
+  waitlistEnabled Boolean @default(false)
+
+  // Scheduling
+  schedules  Schedule[]
+  meetingUrl String? // Video conferencing link (Zoom, Google Meet, etc.)
+
+  // --- Relations ---
+  orgId        String       @db.ObjectId
+  organization Organization @relation(fields: [orgId], references: [id])
+
+  courseId String @db.ObjectId
+  course   Course @relation(fields: [courseId], references: [id])
+
+  termId String?       @db.ObjectId
+  term   AcademicTerm? @relation(fields: [termId], references: [id])
+
+  // Instructor (primary)
+  instructorId String? @db.ObjectId
+  instructor   User?   @relation("sectionInstructor", fields: [instructorId], references: [id])
+
+  // Section content and activities
+  modules       Module[]
+  announcements SectionAnnouncement[]
+  assessments   Assessment[]
+  enrollments   Enrollment[]
+  attendances   Attendance[]
+  gradeConfigs  GradeConfig[]
+  discussions   DiscussionThread[]
+
+  // Co-instructors / TAs
+  sectionStaff SectionStaff[]
+
+  // --- Soft delete ---
+  isDeleted Boolean @default(false)
+
+  // --- Audit ---
+  createdBy String?  @db.ObjectId
+  updatedBy String?  @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // --- Indexes ---
+  @@unique([orgId, code])
+  @@index([orgId, status])
+  @@index([orgId, courseId])
+  @@index([orgId, termId])
+  @@index([instructorId])
+  @@map("sections")
+}
+
+// SectionStaff — co-instructors and teaching assistants assigned to a section
+enum SectionStaffRole {
+  co_instructor
+  teaching_assistant
+}
+
+model SectionStaff {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  role SectionStaffRole
+
+  sectionId String  @db.ObjectId
+  section   Section @relation(fields: [sectionId], references: [id])
+
+  userId String @db.ObjectId
+  user   User   @relation("sectionStaff", fields: [userId], references: [id])
+
+  // --- Audit ---
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // --- Indexes ---
+  @@unique([sectionId, userId])
+  @@map("section_staff")
+}

@@ -1,0 +1,45 @@
+// Attendance — tracks student attendance per section per date
+// Terminology: "Attendance" (Education/Government/Bootcamp), "Participation" (Corporate)
+
+enum AttendanceStatus {
+  present
+  late
+  absent
+  excused
+}
+
+enum AttendanceMethod {
+  manual // Instructor marks manually
+  qr_code // Student scans QR code
+  geolocation // Location-based check-in
+}
+
+model Attendance {
+  id     String           @id @default(auto()) @map("_id") @db.ObjectId
+  status AttendanceStatus
+  method AttendanceMethod @default(manual)
+  date   DateTime
+
+  // Optional notes (e.g., reason for absence/excuse)
+  remarks String?
+
+  // --- Relations ---
+  sectionId String  @db.ObjectId
+  section   Section @relation(fields: [sectionId], references: [id])
+
+  studentId String @db.ObjectId
+  student   User   @relation("attendances", fields: [studentId], references: [id])
+
+  // Marked by
+  markedBy String? @db.ObjectId
+
+  // --- Audit ---
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // --- Indexes ---
+  @@unique([sectionId, studentId, date])
+  @@index([sectionId, date])
+  @@index([studentId])
+  @@map("attendances")
+}

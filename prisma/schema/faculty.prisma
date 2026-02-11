@@ -1,0 +1,36 @@
+// Faculty / Department — organizational grouping for courses and instructors
+// Terminology: "Faculty" (Education), "Department" (Corporate), "Division" (Government), "Track" (Bootcamp)
+
+enum FacultyStatus {
+  active
+  archived
+}
+
+model Faculty {
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  code        String
+  description String?
+  status      FacultyStatus @default(active)
+
+  // --- Relations ---
+  orgId        String       @db.ObjectId
+  organization Organization @relation(fields: [orgId], references: [id])
+
+  courses  Course[]
+  programs Program[]
+
+  // --- Soft delete ---
+  isDeleted Boolean @default(false)
+
+  // --- Audit ---
+  createdBy String?  @db.ObjectId
+  updatedBy String?  @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // --- Indexes ---
+  @@unique([orgId, code])
+  @@index([orgId, status])
+  @@map("faculties")
+}

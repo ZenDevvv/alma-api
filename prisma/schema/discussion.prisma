@@ -1,0 +1,63 @@
+// DiscussionThread — discussion forums within a section
+
+enum DiscussionStatus {
+  open
+  locked
+  archived
+}
+
+model DiscussionThread {
+  id       String           @id @default(auto()) @map("_id") @db.ObjectId
+  title    String
+  content  String // Rich text / HTML (initial post body)
+  status   DiscussionStatus @default(open)
+  isPinned Boolean          @default(false)
+  isGraded Boolean          @default(false) // If true, participation counts as assessment
+
+  // --- Relations ---
+  sectionId String  @db.ObjectId
+  section   Section @relation(fields: [sectionId], references: [id])
+
+  authorId String @db.ObjectId
+  author   User   @relation("discussionThreads", fields: [authorId], references: [id])
+
+  replies DiscussionReply[]
+
+  // --- Soft delete ---
+  isDeleted Boolean @default(false)
+
+  // --- Audit ---
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // --- Indexes ---
+  @@index([sectionId, status])
+  @@map("discussion_threads")
+}
+
+// DiscussionReply — threaded replies within a discussion
+model DiscussionReply {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  content String // Rich text / HTML
+
+  // Nested threading — reply to another reply
+  parentReplyId String? @db.ObjectId
+
+  // --- Relations ---
+  threadId String           @db.ObjectId
+  thread   DiscussionThread @relation(fields: [threadId], references: [id])
+
+  authorId String @db.ObjectId
+  author   User   @relation("discussionReplies", fields: [authorId], references: [id])
+
+  // --- Soft delete ---
+  isDeleted Boolean @default(false)
+
+  // --- Audit ---
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // --- Indexes ---
+  @@index([threadId])
+  @@map("discussion_replies")
+}

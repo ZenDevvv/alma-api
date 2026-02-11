@@ -1,0 +1,53 @@
+// AcademicTerm — defines a time period for academic activities (semester, trimester, quarter)
+// Terminology: "Semester" (Education), "Training Cycle" (Corporate), "Training Period" (Government), "Cohort Cycle" (Bootcamp)
+
+enum TermType {
+  semester
+  trimester
+  quarter
+  custom
+}
+
+enum TermStatus {
+  upcoming
+  active
+  completed
+  archived
+}
+
+model AcademicTerm {
+  id     String     @id @default(auto()) @map("_id") @db.ObjectId
+  name   String // e.g., "Fall 2026", "Q3 2026"
+  code   String // e.g., "FALL-2026"
+  type   TermType   @default(semester)
+  status TermStatus @default(upcoming)
+
+  // Date boundaries
+  startDate           DateTime
+  endDate             DateTime
+  enrollmentStartDate DateTime?
+  enrollmentEndDate   DateTime?
+  addDropDeadline     DateTime?
+  withdrawalDeadline  DateTime?
+  gradingDeadline     DateTime?
+
+  // --- Relations ---
+  orgId        String       @db.ObjectId
+  organization Organization @relation(fields: [orgId], references: [id])
+
+  sections Section[]
+
+  // --- Soft delete ---
+  isDeleted Boolean @default(false)
+
+  // --- Audit ---
+  createdBy String?  @db.ObjectId
+  updatedBy String?  @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // --- Indexes ---
+  @@unique([orgId, code])
+  @@index([orgId, status])
+  @@map("academic_terms")
+}

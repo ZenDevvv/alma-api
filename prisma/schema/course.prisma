@@ -1,0 +1,84 @@
+// Course — the academic blueprint/catalog entry for what is taught
+// Terminology: "Course" (Education), "Training Program" (Corporate), "Training Module" (Government), "Course" (Bootcamp)
+
+enum CourseStatus {
+  draft
+  pending_approval
+  active
+  archived
+}
+
+enum CourseLevel {
+  beginner
+  intermediate
+  advanced
+  all_levels
+}
+
+model Course {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  code        String // e.g., "CS-101"
+  description String?
+  status      CourseStatus @default(draft)
+  level       CourseLevel  @default(all_levels)
+
+  // Academic details
+  creditHours Float? // Credit hours / units
+  thumbnail   String? // Course thumbnail image URL
+  syllabus    String? // Syllabus file URL
+
+  // Versioning
+  version Int @default(1)
+
+  // --- Relations ---
+  orgId        String       @db.ObjectId
+  organization Organization @relation(fields: [orgId], references: [id])
+
+  facultyId String?  @db.ObjectId
+  faculty   Faculty? @relation(fields: [facultyId], references: [id])
+
+  programId String?  @db.ObjectId
+  program   Program? @relation(fields: [programId], references: [id])
+
+  categoryId String?   @db.ObjectId
+  category   Category? @relation(fields: [categoryId], references: [id])
+
+  sections       Section[]
+  prerequisites  CoursePrerequisite[] @relation("course")
+  prerequisiteOf CoursePrerequisite[] @relation("prerequisite")
+
+  // --- Soft delete ---
+  isDeleted Boolean @default(false)
+
+  // --- Audit ---
+  createdBy String?  @db.ObjectId
+  updatedBy String?  @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // --- Indexes ---
+  @@unique([orgId, code])
+  @@index([orgId, status])
+  @@index([orgId, facultyId])
+  @@index([orgId, categoryId])
+  @@map("courses")
+}
+
+// CoursePrerequisite — explicit join model for course dependency chains
+model CoursePrerequisite {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  courseId String @db.ObjectId
+  course   Course @relation("course", fields: [courseId], references: [id])
+
+  prerequisiteId String @db.ObjectId
+  prerequisite   Course @relation("prerequisite", fields: [prerequisiteId], references: [id])
+
+  // --- Audit ---
+  createdAt DateTime @default(now())
+
+  // --- Indexes ---
+  @@unique([courseId, prerequisiteId])
+  @@map("course_prerequisites")
+}

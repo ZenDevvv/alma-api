@@ -1,0 +1,193 @@
+// Assessment — quizzes, assignments, exams, activities within a section
+// Terminology: "Assessment" (Education/Government), "Evaluation" (Corporate), "Challenge" (Bootcamp)
+
+enum AssessmentType {
+  quiz
+  assignment
+  activity
+  monthly_test
+  periodical_test
+  final_exam
+}
+
+enum AssessmentStatus {
+  draft
+  published
+  closed
+  archived
+}
+
+enum LateSubmissionPolicy {
+  accept // Accept with no penalty
+  accept_with_penalty // Accept but deduct marks
+  hard_deadline // Reject after due date
+  grace_period // Accept within grace period, then reject
+}
+
+model Assessment {
+  id          String           @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String?
+  type        AssessmentType
+  status      AssessmentStatus @default(draft)
+
+  // Configuration
+  totalPoints      Float   @default(100)
+  passingPoints    Float?
+  timeLimitMinutes Int? // null = untimed
+  maxAttempts      Int     @default(1)
+  randomizeOrder   Boolean @default(false)
+  showResults      Boolean @default(true) // Show correct answers after grading
+
+  // Scheduling
+  availableFrom DateTime?
+  dueDate       DateTime?
+  closedAt      DateTime?
+
+  // Late submission
+  latePolicy         LateSubmissionPolicy @default(hard_deadline)
+  gracePeriodHours   Int? // Hours after due date for grace period
+  latePenaltyPercent Float? // Percentage deducted for late submissions
+
+  // Grading category (links to GradeConfig for weight calculation)
+  gradeConfigId String?      @db.ObjectId
+  gradeConfig   GradeConfig? @relation(fields: [gradeConfigId], references: [id])
+
+  // Rubric (optional)
+  rubricId String? @db.ObjectId
+  rubric   Rubric? @relation(fields: [rubricId], references: [id])
+
+  // --- Relations ---
+  sectionId String  @db.ObjectId
+  section   Section @relation(fields: [sectionId], references: [id])
+
+  questions   Question[]
+  submissions Submission[]
+
+  // --- Soft delete ---
+  isDeleted Boolean @default(false)
+
+  // --- Audit ---
+  createdBy String?  @db.ObjectId
+  updatedBy String?  @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // --- Indexes ---
+  @@index([sectionId, status])
+  @@index([sectionId, type])
+  @@map("assessments")
+}
+
+// ─── Question Types ───
+
+enum QuestionType {
+  multiple_choice
+  true_false
+  fill_in_blank
+  short_answer
+  essay
+  enumeration
+  matching
+  ordering
+  file_upload
+}
+
+type QuestionOption {
+  label     String
+  value     String
+  isCorrect Boolean @default(false)
+}
+
+type MatchingPair {
+  left  String
+  right String
+}
+
+model Question {
+  id        String       @id @default(auto()) @map("_id") @db.ObjectId
+  type      QuestionType
+  text      String // Question text (supports rich text / HTML)
+  imageUrl  String? // Optional image within the question
+  points    Float        @default(1)
+  sortOrder Int          @default(0)
+
+  // Answer data (varies by question type)
+  options            QuestionOption[] // For multiple_choice, true_false
+  correctAnswer      String? // For fill_in_blank, short_answer
+  matchingPairs      MatchingPair[] // For matching type
+  orderingAnswer     String[] // Correct sequence for ordering type
+  allowPartialCredit Boolean          @default(false)
+
+  // --- Relations ---
+  assessmentId String     @db.ObjectId
+  assessment   Assessment @relation(fields: [assessmentId], references: [id])
+
+  // --- Soft delete ---
+  isDeleted Boolean @default(false)
+
+  // --- Audit ---
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // --- Indexes ---
+  @@index([assessmentId, sortOrder])
+  @@map("questions")
+}
+
+// ─── Submissions ───
+
+enum SubmissionStatus {
+  in_progress // Student started but hasn't submitted
+  submitted // Student submitted, awaiting grading
+  graded // Graded (auto or manual)
+  returned // Returned for revision
+}
+
+type QuestionAnswer {
+  questionId String  @db.ObjectId
+  answer     String // Serialized answer (text, selected option value, etc.)
+  fileUrl    String? // For file_upload questions
+  points     Float? // Awarded points (filled after grading)
+  feedback   String? // Per-question instructor feedback
+}
+
+model Submission {
+  id     String           @id @default(auto()) @map("_id") @db.ObjectId
+  status SubmissionStatus @default(in_progress)
+
+  // Attempt tracking
+  attemptNumber Int @default(1)
+
+  // Answers
+  answers QuestionAnswer[]
+
+  // Scoring
+  totalScore Float?
+  percentage Float?
+  gradedAt   DateTime?
+  gradedBy   String?   @db.ObjectId // userId of grader
+
+  // Timing
+  startedAt   DateTime  @default(now())
+  submittedAt DateTime?
+
+  // Feedback
+  overallFeedback String?
+
+  // --- Relations ---
+  assessmentId String     @db.ObjectId
+  assessment   Assessment @relation(fields: [assessmentId], references: [id])
+
+  studentId String @db.ObjectId
+  student   User   @relation("submissions", fields: [studentId], references: [id])
+
+  // --- Audit ---
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // --- Indexes ---
+  @@index([assessmentId, studentId])
+  @@index([studentId, status])
+  @@map("submissions")
+}

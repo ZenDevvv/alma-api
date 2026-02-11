@@ -1,0 +1,56 @@
+// Enrollment — tracks a student's registration in a section
+// Terminology: "Enrollment" (Education), "Assignment" (Corporate), "Enrollment" (Government), "Registration" (Bootcamp)
+
+enum EnrollmentStatus {
+  pending // Request submitted, awaiting approval
+  enrolled // Actively enrolled
+  waitlisted // On waitlist
+  dropped // Dropped during add/drop period
+  withdrawn // Withdrawn after add/drop (transcript notation "W")
+  completed // Finished the section
+  failed // Did not meet passing requirements
+  cancelled // Admin-cancelled
+}
+
+enum EnrollmentType {
+  admin_assigned // Admin directly enrolled the student
+  self_enrolled // Student self-enrolled during open period
+  request_based // Student requested, admin/instructor approved
+}
+
+model Enrollment {
+  id     String           @id @default(auto()) @map("_id") @db.ObjectId
+  status EnrollmentStatus @default(pending)
+  type   EnrollmentType   @default(admin_assigned)
+
+  // Waitlist
+  waitlistPosition Int?
+
+  // Withdrawal
+  withdrawalReason String?
+  withdrawnAt      DateTime?
+
+  // Completion
+  completedAt DateTime?
+
+  // --- Relations ---
+  sectionId String  @db.ObjectId
+  section   Section @relation(fields: [sectionId], references: [id])
+
+  studentId String @db.ObjectId
+  student   User   @relation("enrollments", fields: [studentId], references: [id])
+
+  // Approved/processed by
+  processedBy String? @db.ObjectId
+
+  // --- Audit ---
+  enrolledAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // --- Indexes ---
+  @@unique([sectionId, studentId])
+  @@index([studentId, status])
+  @@index([sectionId, status])
+  @@map("enrollments")
+}

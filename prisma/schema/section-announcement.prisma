@@ -1,0 +1,38 @@
+// SectionAnnouncement — announcements posted within a specific section by an instructor
+
+enum AnnouncementStatus {
+  draft
+  published
+  scheduled
+  archived
+}
+
+model SectionAnnouncement {
+  id       String             @id @default(auto()) @map("_id") @db.ObjectId
+  title    String
+  content  String // Rich text / HTML
+  status   AnnouncementStatus @default(draft)
+  isPinned Boolean            @default(false)
+
+  // Scheduling
+  scheduledAt DateTime?
+  publishedAt DateTime?
+
+  // --- Relations ---
+  sectionId String  @db.ObjectId
+  section   Section @relation(fields: [sectionId], references: [id])
+
+  authorId String @db.ObjectId
+  author   User   @relation("sectionAnnouncements", fields: [authorId], references: [id])
+
+  // --- Soft delete ---
+  isDeleted Boolean @default(false)
+
+  // --- Audit ---
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // --- Indexes ---
+  @@index([sectionId, status])
+  @@map("section_announcements")
+}

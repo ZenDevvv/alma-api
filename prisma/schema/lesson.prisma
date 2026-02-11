@@ -1,0 +1,84 @@
+// Lesson — an individual piece of content within a module
+// Terminology: "Lesson" (Education/Government), "Learning Activity" (Corporate), "Topic" (Bootcamp)
+
+enum LessonStatus {
+  draft
+  published
+  archived
+}
+
+enum LessonContentType {
+  text // Rich text / HTML
+  video // Uploaded or embedded video
+  audio // Uploaded audio
+  file // Downloadable file (PDF, DOCX, etc.)
+  external // External link / URL
+  embedded // Embedded document (Google Docs, slides, etc.)
+}
+
+type LessonAttachment {
+  name     String
+  url      String
+  fileType String // MIME type
+  fileSize Int? // Bytes
+}
+
+model Lesson {
+  id          String            @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String?
+  status      LessonStatus      @default(draft)
+  sortOrder   Int               @default(0)
+  contentType LessonContentType @default(text)
+
+  // Content
+  content     String? // Rich text / HTML body
+  videoUrl    String? // Video embed or upload URL
+  externalUrl String? // External link
+  attachments LessonAttachment[]
+
+  // Duration estimate in minutes
+  duration Int?
+
+  // --- Relations ---
+  moduleId String @db.ObjectId
+  module   Module @relation(fields: [moduleId], references: [id])
+
+  lessonProgresses LessonProgress[]
+
+  // --- Soft delete ---
+  isDeleted Boolean @default(false)
+
+  // --- Audit ---
+  createdBy String?  @db.ObjectId
+  updatedBy String?  @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // --- Indexes ---
+  @@index([moduleId, sortOrder])
+  @@map("lessons")
+}
+
+// LessonProgress — tracks individual student lesson completion and notes
+model LessonProgress {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  isCompleted Boolean   @default(false)
+  completedAt DateTime?
+  notes       String? // Personal student notes per lesson
+
+  lessonId String @db.ObjectId
+  lesson   Lesson @relation(fields: [lessonId], references: [id])
+
+  studentId String @db.ObjectId
+  student   User   @relation("lessonProgress", fields: [studentId], references: [id])
+
+  // --- Audit ---
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // --- Indexes ---
+  @@unique([lessonId, studentId])
+  @@map("lesson_progresses")
+}

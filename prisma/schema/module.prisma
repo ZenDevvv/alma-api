@@ -1,0 +1,62 @@
+// Module — a grouping of lessons within a section (e.g., "Chapter 1: Introduction")
+// Terminology: "Module" (Education/Corporate), "Unit" (Government), "Sprint" (Bootcamp)
+
+enum ModuleStatus {
+  draft
+  published
+  locked // Locked behind prerequisite completion
+  archived
+}
+
+model Module {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String?
+  status      ModuleStatus @default(draft)
+  sortOrder   Int          @default(0)
+
+  // Prerequisite sequencing — must complete this module before unlocking next
+  prerequisiteModuleId String? @db.ObjectId
+
+  // --- Relations ---
+  sectionId String  @db.ObjectId
+  section   Section @relation(fields: [sectionId], references: [id])
+
+  lessons          Lesson[]
+  moduleProgresses ModuleProgress[]
+
+  // --- Soft delete ---
+  isDeleted Boolean @default(false)
+
+  // --- Audit ---
+  createdBy String?  @db.ObjectId
+  updatedBy String?  @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // --- Indexes ---
+  @@index([sectionId, sortOrder])
+  @@map("modules")
+}
+
+// ModuleProgress — tracks a student's completion of a module
+model ModuleProgress {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  completedAt DateTime?
+  isCompleted Boolean   @default(false)
+
+  moduleId String @db.ObjectId
+  module   Module @relation(fields: [moduleId], references: [id])
+
+  studentId String @db.ObjectId
+  student   User   @relation("moduleProgress", fields: [studentId], references: [id])
+
+  // --- Audit ---
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // --- Indexes ---
+  @@unique([moduleId, studentId])
+  @@map("module_progresses")
+}

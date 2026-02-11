@@ -123,13 +123,13 @@ type PersonalInfo {
 }
 
 model Person {
-  id               String          @id @default(auto()) @map("_id") @db.ObjectId
-  personalInfo       PersonalInfo      // in kg
-  contactInfo         Contact[]       // Array for multiple phones/emails
-  addresses        Address[]       // Primary, billing, mailing, etc.
-  languages        Language[]      // Languages spoken
-  preferredLanguage String?        // ISO code: en, es, fr, etc.
-  documents Json?
+  id                String             @id @default(auto()) @map("_id") @db.ObjectId
+  personalInfo      PersonalInfo // in kg
+  contactInfo       Contact[] // Array for multiple phones/emails
+  addresses         Address[] // Primary, billing, mailing, etc.
+  languages         Language[] // Languages spoken
+  preferredLanguage String? // ISO code: en, es, fr, etc.
+  documents         Json?
   emergencyContacts EmergencyContact[]
   kycStatus         KYCStatus          @default(PENDING)
   kycCompletedAt    DateTime?

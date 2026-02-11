@@ -1,0 +1,33 @@
+// Category — classification/tagging for courses (e.g., "Computer Science", "Mathematics")
+
+enum CategoryStatus {
+  active
+  archived
+}
+
+model Category {
+  id          String         @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String?
+  status      CategoryStatus @default(active)
+
+  // --- Relations ---
+  orgId        String       @db.ObjectId
+  organization Organization @relation(fields: [orgId], references: [id])
+
+  courses Course[]
+
+  // --- Soft delete ---
+  isDeleted Boolean @default(false)
+
+  // --- Audit ---
+  createdBy String?  @db.ObjectId
+  updatedBy String?  @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // --- Indexes ---
+  @@unique([orgId, name])
+  @@index([orgId, status])
+  @@map("categories")
+}

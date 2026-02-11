@@ -1,0 +1,42 @@
+// Program — a structured collection of courses leading to a degree/certification
+// Terminology: "Program" (Education), "Learning Path" (Corporate), "Certification Track" (Government), "Specialization" (Bootcamp)
+
+enum ProgramStatus {
+  active
+  archived
+}
+
+model Program {
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  code        String
+  description String?
+  status      ProgramStatus @default(active)
+
+  // Curriculum requirements
+  totalUnits   Int? // Total credit hours/units required for completion
+  requirements Json? // Structured requirements (required courses, elective pools, etc.)
+
+  // --- Relations ---
+  orgId        String       @db.ObjectId
+  organization Organization @relation(fields: [orgId], references: [id])
+
+  facultyId String?  @db.ObjectId
+  faculty   Faculty? @relation(fields: [facultyId], references: [id])
+
+  courses Course[]
+
+  // --- Soft delete ---
+  isDeleted Boolean @default(false)
+
+  // --- Audit ---
+  createdBy String?  @db.ObjectId
+  updatedBy String?  @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // --- Indexes ---
+  @@unique([orgId, code])
+  @@index([orgId, status])
+  @@map("programs")
+}

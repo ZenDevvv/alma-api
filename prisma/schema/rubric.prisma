@@ -1,0 +1,48 @@
+// Rubric — reusable grading rubrics for assessments (analytic or holistic)
+
+enum RubricType {
+  analytic // Multiple criteria with individual scores
+  holistic // Single overall score with descriptors
+}
+
+type RubricLevel {
+  label       String // e.g., "Excellent", "Good", "Needs Improvement"
+  points      Float // Points for this level
+  description String?
+}
+
+type RubricCriterion {
+  name        String
+  description String?
+  maxPoints   Float
+  levels      RubricLevel[]
+}
+
+model Rubric {
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String?
+  type        RubricType @default(analytic)
+
+  criteria RubricCriterion[]
+
+  // --- Relations ---
+  orgId        String       @db.ObjectId
+  organization Organization @relation(fields: [orgId], references: [id])
+
+  createdById   String @db.ObjectId
+  createdByUser User   @relation("createdRubrics", fields: [createdById], references: [id])
+
+  assessments Assessment[]
+
+  // --- Soft delete ---
+  isDeleted Boolean @default(false)
+
+  // --- Audit ---
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // --- Indexes ---
+  @@index([orgId])
+  @@map("rubrics")
+}

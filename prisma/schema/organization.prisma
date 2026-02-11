@@ -11,5 +11,14 @@ model Organization {
   users       User[]
   persons     Person[]
 
+  // --- LMS Relations ---
+  faculties     Faculty[]
+  programs      Program[]
+  categories    Category[]
+  academicTerms AcademicTerm[]
+  courses       Course[]
+  sections      Section[]
+  rubrics       Rubric[]
+
   @@index([name], name: "idx_organization_name")
 }
