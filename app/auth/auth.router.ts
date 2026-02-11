@@ -1,5 +1,4 @@
 import { Router, Request, Response, NextFunction } from "express";
-import verifyRole from "../../middleware/verifyRole";
 
 interface IController {
 	register(req: Request, res: Response, next: NextFunction): Promise<void>;

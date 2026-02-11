@@ -32,7 +32,7 @@ export const UserSchema = z.object({
 	email: z.string().email("Invalid email format"),
 	password: z.string(),
 	role: Role,
-	subRole: SubRole,
+	subRole: z.array(SubRole),
 	status: UserStatus.default("active"),
 	isDeleted: z.boolean().default(false),
 	lastLogin: z.coerce.date().optional(),

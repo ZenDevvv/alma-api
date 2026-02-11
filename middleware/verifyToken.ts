@@ -10,7 +10,7 @@ enum Role {
 
 export interface AuthRequest extends Request {
 	role: Role;
-	subRole: string;
+	subRole: string[];
 	userId: string;
 	firstName: string;
 	lastName: string;
@@ -21,7 +21,7 @@ export interface AuthRequest extends Request {
 interface JwtPayload {
 	userId: string;
 	role: Role;
-	subRole: string;
+	subRole: string[];
 	firstName: string;
 	lastName: string;
 	orgId?: string;
@@ -51,7 +51,7 @@ export default async (req: AuthRequest, res: Response, next: NextFunction) => {
 
 
 		// Fallback: fetch missing fields from DB
-		if (!req.role || !req.subRole) {
+		if (!req.role || !req.subRole || req.subRole.length === 0) {
 			if (!req.userId) {
 				res.status(401).json({ message: "Unauthorized" });
 				return;
@@ -66,7 +66,7 @@ export default async (req: AuthRequest, res: Response, next: NextFunction) => {
 			}
 			// Assign fallbacks if missing
 			req.role = req.role || (user.role as Role);
-			req.subRole = req.subRole || (user.subRole as string);
+			req.subRole = req.subRole?.length ? req.subRole : (user.subRole as string[]);
 			req.orgId = req.orgId || (user.orgId as string);
 			// Note: firstName/lastName not stored on User; skip enrichment
 		}

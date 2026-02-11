@@ -13,7 +13,7 @@ model User {
   email    String  @unique
   password String
   role     Role
-  subRole  SubRole
+  subRole  SubRole[]
 
   status      UserStatus @default(active)
   isDeleted   Boolean    @default(false)
