@@ -48,12 +48,10 @@ export default async (req: AuthRequest, res: Response, next: NextFunction) => {
 		req.subRole = decoded.subRole;
 		req.firstName = decoded.firstName;
 		req.lastName = decoded.lastName;
-		req.departmentId = decoded.departmentId;
 		req.orgId = decoded.orgId;
-		req.departmentCode = decoded.departmentCode;
 
 		// Fallback: fetch missing fields from DB
-		if (!req.role || !req.departmentId || !req.subRole) {
+		if (!req.role || !req.subRole) {
 			if (!req.userId) {
 				res.status(401).json({ message: "Invalid token payload" });
 				return;
@@ -73,10 +71,6 @@ export default async (req: AuthRequest, res: Response, next: NextFunction) => {
 			// Note: firstName/lastName not stored on User; skip enrichment
 		}
 
-		if (!req.role || !req.departmentId) {
-			res.status(401).json({ message: "Missing role or departmentId" });
-			return;
-		}
 
 		next();
 	} catch (error: any) {
