@@ -1,13 +1,6 @@
 import { Router, Request, Response, NextFunction } from "express";
 import { cache, cacheShort, cacheMedium, cacheUser } from "../../middleware/cache";
-import { uploadFiles } from "../../middleware/upload";
-
-const uploadOrgImages = uploadFiles({
-	fields: [
-		{ name: "logo", folder: "organizations/logos" },
-		{ name: "background", folder: "organizations/backgrounds" },
-	],
-});
+import { uploadOrgImages } from "../../config/upload.config";
 
 interface IController {
 	getById(req: Request, res: Response, next: NextFunction): Promise<void>;

@@ -9,25 +9,23 @@ enum Role {
 }
 
 export interface AuthRequest extends Request {
-	role?: Role;
-	subRole?: string;
-	userId?: string;
-	firstName?: string;
-	lastName?: string;
-	departmentId?: string;
-	departmentCode?: string;
+	role: Role;
+	subRole: string;
+	userId: string;
+	firstName: string;
+	lastName: string;
+	orgCode?: string;
 	orgId?: string;
 }
 
 interface JwtPayload {
-	userId?: string;
-	role?: Role;
-	subRole?: string;
-	firstName?: string;
-	lastName?: string;
-	departmentId?: string;
-	departmentCode?: string;
+	userId: string;
+	role: Role;
+	subRole: string;
+	firstName: string;
+	lastName: string;
 	orgId?: string;
+	orgCode?: string;
 }
 
 const prisma = new PrismaClient();
@@ -49,11 +47,13 @@ export default async (req: AuthRequest, res: Response, next: NextFunction) => {
 		req.firstName = decoded.firstName;
 		req.lastName = decoded.lastName;
 		req.orgId = decoded.orgId;
+		req.orgCode = decoded.orgCode;
+
 
 		// Fallback: fetch missing fields from DB
 		if (!req.role || !req.subRole) {
 			if (!req.userId) {
-				res.status(401).json({ message: "Invalid token payload" });
+				res.status(401).json({ message: "Unauthorized" });
 				return;
 			}
 			const user = await prisma.user.findUnique({
@@ -61,7 +61,7 @@ export default async (req: AuthRequest, res: Response, next: NextFunction) => {
 			select: { role: true, subRole: true, orgId: true },
 			});
 			if (!user) {
-				res.status(401).json({ message: "User not found" });
+				res.status(401).json({ message: "Unauthorized" });
 				return;
 			}
 			// Assign fallbacks if missing

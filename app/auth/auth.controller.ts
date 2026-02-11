@@ -96,7 +96,6 @@ export const controller = (prisma: PrismaClient) => {
 				},
 			});
 
-
 			const userResponse = {
 				id: user.id,
 				email: user.email,
@@ -197,10 +196,12 @@ export const controller = (prisma: PrismaClient) => {
 			let token: string;
 			const payload = {
 				userId: user.id,
-				firstName: (user as any).person?.personalInfo?.firstName,
-				lastName: (user as any).person?.personalInfo?.lastName,
+				firstName: user.person?.personalInfo?.firstName,
+				lastName: user.person?.personalInfo?.lastName,
 				role: user.role,
 				orgId: user.orgId,
+				orgCode: user.organization?.code,
+				subRole: user.subRole,
 			};
 			const secret = process.env.JWT_SECRET || "";
 			if (expiresIn) {
