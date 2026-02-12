@@ -21,6 +21,7 @@ import { systemLogModule } from "./app/systemLog";
 import { metricsModule } from "./app/metrics";
 import { organizationModule } from "./app/organization";
 import { courseModule } from "./app/course";
+import { facultyModule } from "./app/faculty";
 
 // Log uncaught exceptions and unhandled promise rejections
 process.on("uncaughtException", (err) => {
@@ -82,6 +83,7 @@ try {
 	const metrics = metricsModule(prisma);
 	const organization = organizationModule(prisma);
 	const course = courseModule(prisma);
+	const faculty = facultyModule(prisma);
 
 	// Health check endpoint
 	app.get("/", (req: Request, res: Response) => {
@@ -167,6 +169,7 @@ try {
 	app.use(config.baseApiPath, metrics);
 	app.use(config.baseApiPath, organization);
 	app.use(config.baseApiPath, course);
+	app.use(config.baseApiPath, faculty);
 
 	server.listen(config.port, async () => {
 		await connectAllDatabases();

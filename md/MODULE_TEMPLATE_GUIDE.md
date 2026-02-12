@@ -115,10 +115,17 @@ The full entity schema (`__Entity__Schema`) **must include all relation fields**
 **How to apply:**
 
 1. Look at the Prisma model for the entity and identify all **relation fields** (fields with `@relation` or array relations like `RelatedModel[]`).
-2. For each **belongs-to** relation (e.g. `person Person? @relation(...)`), add the related entity's Zod schema as an optional field in the full schema. Import the related schema from its Zod file.
-3. For each **has-many** relation (e.g. `enrollments Enrollment[] @relation(...)`), add `z.array(RelatedSchema).optional()` in the full schema. Only add has-many relations that are commonly returned by the API; skip internal/audit relations like `activityLogs` and `auditLogs`.
-4. **If the related model's Zod file does not exist yet, create it first.** Look up the related Prisma model in `prisma/schema/[related].prisma` and generate the full Zod file at `zod/[related].zod.ts` following the same Step 2 conventions (full schema, create schema, update schema, enums, composite types). This ensures the import will resolve. Recursively apply this rule — if *that* model also has relations whose Zod files are missing, create those too before proceeding.
-5. In `Create__Entity__Schema` and `Update__Entity__Schema`, **omit all relation fields** — they are managed by foreign key IDs, not by passing nested objects.
+2. **Only include relation fields where the current model owns the foreign key ID.** If the Prisma model has a foreign key field (e.g. `personId`, `orgId`), include the corresponding relation schema (e.g. `person: PersonSchema.optional()`). If the model does **not** have the foreign key (i.e. it's the "other side" of the relation — has-many or reverse belongs-to), **do not** include that relation field in the Zod schema. This avoids circular dependencies.
+3. **If the related model's Zod file does not exist yet, create it first.** Look up the related Prisma model in `prisma/schema/[related].prisma` and generate the full Zod file at `zod/[related].zod.ts` following the same Step 2 conventions (full schema, create schema, update schema, enums, composite types). This ensures the import will resolve. Recursively apply this rule — if *that* model also has relations whose Zod files are missing, create those too before proceeding.
+4. In `Create__Entity__Schema` and `Update__Entity__Schema`, **omit all relation fields** — they are managed by foreign key IDs, not by passing nested objects.
+
+**Summary — when to include a relation field:**
+
+| Prisma model has... | Include in Zod schema? | Example |
+|---|---|---|
+| Foreign key ID + relation (belongs-to) | **Yes** — import the related schema | `personId` + `person Person?` → `person: PersonSchema.optional()` |
+| Only array relation (has-many) | **No** — skip it | `enrollments Enrollment[]` → do not add |
+| Only reverse relation (no FK) | **No** — skip it | `users User[]` on Organization → do not add |
 
 ```typescript
 import { z } from "zod";
@@ -136,11 +143,8 @@ export const __Entity__Schema = z.object({
 	// --- Foreign key IDs ---
 	__related__Id: z.string().refine((val) => isValidObjectId(val)).optional(),
 
-	// --- Relation fields (from Prisma model) ---
-	// Belongs-to relations: use the related entity's schema, marked optional
+	// --- Relation fields (only where this model owns the foreign key) ---
 	__related__: __Related__Schema.optional(),
-	// Has-many relations: use z.array() of the related schema, marked optional
-	// __relatedPlural__: z.array(__Related__Schema).optional(),
 
 	isDeleted: z.boolean(),
 	createdAt: z.coerce.date(),
