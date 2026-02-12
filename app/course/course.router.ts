@@ -7,6 +7,9 @@ interface IController {
 	create(req: Request, res: Response, next: NextFunction): Promise<void>;
 	update(req: Request, res: Response, next: NextFunction): Promise<void>;
 	remove(req: Request, res: Response, next: NextFunction): Promise<void>;
+	addPrerequisite(req: Request, res: Response, next: NextFunction): Promise<void>;
+	removePrerequisite(req: Request, res: Response, next: NextFunction): Promise<void>;
+	getPrerequisites(req: Request, res: Response, next: NextFunction): Promise<void>;
 }
 
 export const router = (route: Router, controller: IController): Router => {
@@ -460,6 +463,102 @@ export const router = (route: Router, controller: IController): Router => {
 	 *         $ref: '#/components/responses/InternalServerError'
 	 */
 	routes.delete("/:id", controller.remove);
+
+	/**
+	 * @openapi
+	 * /api/course/{id}/prerequisite:
+	 *   get:
+	 *     summary: Get course prerequisites
+	 *     description: Retrieve all prerequisites for a specific course
+	 *     tags: [Course]
+	 *     security:
+	 *       - bearerAuth: []
+	 *     parameters:
+	 *       - in: path
+	 *         name: id
+	 *         required: true
+	 *         schema:
+	 *           type: string
+	 *           pattern: '^[0-9a-fA-F]{24}$'
+	 *         description: Course ID (MongoDB ObjectId format)
+	 *     responses:
+	 *       200:
+	 *         description: Prerequisites retrieved successfully
+	 *       404:
+	 *         $ref: '#/components/responses/NotFound'
+	 */
+	routes.get("/:id/prerequisite", controller.getPrerequisites);
+
+	/**
+	 * @openapi
+	 * /api/course/{id}/prerequisite:
+	 *   post:
+	 *     summary: Add a prerequisite to a course
+	 *     description: Link an existing course as a prerequisite
+	 *     tags: [Course]
+	 *     security:
+	 *       - bearerAuth: []
+	 *     parameters:
+	 *       - in: path
+	 *         name: id
+	 *         required: true
+	 *         schema:
+	 *           type: string
+	 *           pattern: '^[0-9a-fA-F]{24}$'
+	 *         description: Course ID (MongoDB ObjectId format)
+	 *     requestBody:
+	 *       required: true
+	 *       content:
+	 *         application/json:
+	 *           schema:
+	 *             type: object
+	 *             required:
+	 *               - prerequisiteId
+	 *             properties:
+	 *               prerequisiteId:
+	 *                 type: string
+	 *                 description: The ID of the course to add as a prerequisite
+	 *     responses:
+	 *       201:
+	 *         description: Prerequisite added successfully
+	 *       400:
+	 *         $ref: '#/components/responses/BadRequest'
+	 *       404:
+	 *         $ref: '#/components/responses/NotFound'
+	 */
+	routes.post("/:id/prerequisite", controller.addPrerequisite);
+
+	/**
+	 * @openapi
+	 * /api/course/{id}/prerequisite/{prerequisiteId}:
+	 *   delete:
+	 *     summary: Remove a prerequisite from a course
+	 *     description: Unlink a prerequisite course
+	 *     tags: [Course]
+	 *     security:
+	 *       - bearerAuth: []
+	 *     parameters:
+	 *       - in: path
+	 *         name: id
+	 *         required: true
+	 *         schema:
+	 *           type: string
+	 *           pattern: '^[0-9a-fA-F]{24}$'
+	 *         description: Course ID
+	 *       - in: path
+	 *         name: prerequisiteId
+	 *         required: true
+	 *         schema:
+	 *           type: string
+	 *           pattern: '^[0-9a-fA-F]{24}$'
+	 *         description: Prerequisite course ID to remove
+	 *     responses:
+	 *       200:
+	 *         description: Prerequisite removed successfully
+	 *       404:
+	 *         $ref: '#/components/responses/NotFound'
+	 */
+	routes.delete("/:id/prerequisite/:prerequisiteId", controller.removePrerequisite);
 
 	route.use(path, routes);
 

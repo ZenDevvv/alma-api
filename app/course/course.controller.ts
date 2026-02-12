@@ -12,7 +12,7 @@ import {
 import { buildSuccessResponse, buildPagination } from "../../helper/success-handler";
 import { groupDataByField } from "../../helper/dataGrouping";
 import { buildErrorResponse, formatZodErrors, handlePrismaError } from "../../helper/error-handler";
-import { CreateCourseSchema, UpdateCourseSchema } from "../../zod/course.zod";
+import { CreateCourseSchema, UpdateCourseSchema, AddPrerequisiteSchema } from "../../zod/course.zod";
 import { logActivity } from "../../utils/activityLogger";
 import { logAudit } from "../../utils/auditLogger";
 import { config } from "../../config/constant";
@@ -387,5 +387,147 @@ export const controller = (prisma: PrismaClient) => {
 		}
 	};
 
-	return { create, getAll, getById, update, remove };
+	const addPrerequisite = async (req: Request, res: Response, _next: NextFunction) => {
+		const { id } = req.params;
+
+		try {
+			if (!id) {
+				const errorResponse = buildErrorResponse(config.ERROR.QUERY_PARAMS.MISSING_ID, 400);
+				res.status(400).json(errorResponse);
+				return;
+			}
+
+			const validation = AddPrerequisiteSchema.safeParse(req.body);
+			if (!validation.success) {
+				const formattedErrors = formatZodErrors(validation.error);
+				courseLogger.error(`Validation failed: ${JSON.stringify(formattedErrors)}`);
+				const errorResponse = buildErrorResponse("Validation failed", 400, formattedErrors);
+				res.status(400).json(errorResponse);
+				return;
+			}
+
+			const { prerequisiteId } = validation.data;
+
+			if (id === prerequisiteId) {
+				const errorResponse = buildErrorResponse("A course cannot be a prerequisite of itself", 400);
+				res.status(400).json(errorResponse);
+				return;
+			}
+
+			// Verify both courses exist
+			const [course, prerequisite] = await Promise.all([
+				prisma.course.findFirst({ where: { id, isDeleted: false } }),
+				prisma.course.findFirst({ where: { id: prerequisiteId, isDeleted: false } }),
+			]);
+
+			if (!course) {
+				const errorResponse = buildErrorResponse(config.ERROR.COURSE.NOT_FOUND, 404);
+				res.status(404).json(errorResponse);
+				return;
+			}
+
+			if (!prerequisite) {
+				const errorResponse = buildErrorResponse("Prerequisite course not found", 404);
+				res.status(404).json(errorResponse);
+				return;
+			}
+
+			const record = await prisma.coursePrerequisite.create({
+				data: { courseId: id, prerequisiteId },
+				include: { prerequisite: true },
+			});
+
+			courseLogger.info(`Prerequisite ${prerequisiteId} added to course ${id}`);
+
+			try {
+				await invalidateCache.byPattern(`cache:course:byId:${id}:*`);
+				courseLogger.info(`Cache invalidated after adding prerequisite to course ${id}`);
+			} catch (cacheError) {
+				courseLogger.warn("Failed to invalidate cache after adding prerequisite:", cacheError);
+			}
+
+			const successResponse = buildSuccessResponse("Prerequisite added successfully", record, 201);
+			res.status(201).json(successResponse);
+		} catch (error) {
+			courseLogger.error(`Error adding prerequisite to course ${id}: ${error}`);
+			const errorResponse = handlePrismaError(error);
+			res.status(errorResponse.code).json(errorResponse);
+		}
+	};
+
+	const removePrerequisite = async (req: Request, res: Response, _next: NextFunction) => {
+		const { id, prerequisiteId } = req.params;
+
+		try {
+			if (!id || !prerequisiteId) {
+				const errorResponse = buildErrorResponse(config.ERROR.QUERY_PARAMS.MISSING_ID, 400);
+				res.status(400).json(errorResponse);
+				return;
+			}
+
+			await prisma.coursePrerequisite.delete({
+				where: {
+					courseId_prerequisiteId: { courseId: id, prerequisiteId },
+				},
+			});
+
+			courseLogger.info(`Prerequisite ${prerequisiteId} removed from course ${id}`);
+
+			try {
+				await invalidateCache.byPattern(`cache:course:byId:${id}:*`);
+				courseLogger.info(`Cache invalidated after removing prerequisite from course ${id}`);
+			} catch (cacheError) {
+				courseLogger.warn("Failed to invalidate cache after removing prerequisite:", cacheError);
+			}
+
+			const successResponse = buildSuccessResponse("Prerequisite removed successfully", {}, 200);
+			res.status(200).json(successResponse);
+		} catch (error) {
+			courseLogger.error(`Error removing prerequisite from course ${id}: ${error}`);
+			const errorResponse = handlePrismaError(error);
+			res.status(errorResponse.code).json(errorResponse);
+		}
+	};
+
+	const getPrerequisites = async (req: Request, res: Response, _next: NextFunction) => {
+		const { id } = req.params;
+
+		try {
+			if (!id) {
+				const errorResponse = buildErrorResponse(config.ERROR.QUERY_PARAMS.MISSING_ID, 400);
+				res.status(400).json(errorResponse);
+				return;
+			}
+
+			const course = await prisma.course.findFirst({
+				where: { id, isDeleted: false },
+			});
+
+			if (!course) {
+				const errorResponse = buildErrorResponse(config.ERROR.COURSE.NOT_FOUND, 404);
+				res.status(404).json(errorResponse);
+				return;
+			}
+
+			const prerequisites = await prisma.coursePrerequisite.findMany({
+				where: { courseId: id },
+				include: { prerequisite: true },
+			});
+
+			courseLogger.info(`Retrieved ${prerequisites.length} prerequisites for course ${id}`);
+
+			const successResponse = buildSuccessResponse(
+				"Prerequisites retrieved successfully",
+				{ prerequisites },
+				200,
+			);
+			res.status(200).json(successResponse);
+		} catch (error) {
+			courseLogger.error(`Error getting prerequisites for course ${id}: ${error}`);
+			const errorResponse = handlePrismaError(error);
+			res.status(errorResponse.code).json(errorResponse);
+		}
+	};
+
+	return { create, getAll, getById, update, remove, addPrerequisite, removePrerequisite, getPrerequisites };
 };

@@ -1,0 +1,417 @@
+{
+	"info": {
+		"_postman_id": "course-api-collection",
+		"name": "ALMA - Course API",
+		"description": "CRUD endpoints for the Course module in ALMA API.\n\nBase URL: {{baseUrl}}/api/course\n\nRequires Bearer token authentication on all endpoints.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "courseId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "Create Course",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 201) {",
+							"    const response = pm.response.json();",
+							"    if (response.data && response.data.id) {",
+							"        pm.collectionVariables.set('courseId', response.data.id);",
+							"        console.log('Course ID saved:', response.data.id);",
+							"    }",
+							"}",
+							"",
+							"pm.test('Status code is 201', function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test('Response has course data', function () {",
+							"    const response = pm.response.json();",
+							"    pm.expect(response.data).to.have.property('id');",
+							"    pm.expect(response.data).to.have.property('title');",
+							"    pm.expect(response.data).to.have.property('code');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"Introduction to Computer Science\",\n    \"code\": \"CS-101\",\n    \"description\": \"Foundational concepts in computing, algorithms, and data structures.\",\n    \"status\": \"draft\",\n    \"level\": \"beginner\",\n    \"creditHours\": 3,\n    \"orgId\": \"507f1f77bcf86cd799439011\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/course",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "course"]
+				},
+				"description": "Create a new course.\n\n**Required fields:** `title`, `code`, `orgId`\n\n**Optional fields:** `description`, `status`, `level`, `creditHours`, `thumbnail`, `syllabus`, `facultyId`, `programId`, `categoryId`\n\n**Status values:** `draft`, `pending_approval`, `active`, `archived`\n\n**Level values:** `beginner`, `intermediate`, `advanced`, `all_levels`"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Course (with all fields)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"Advanced Database Systems\",\n    \"code\": \"CS-401\",\n    \"description\": \"Advanced topics in database management, query optimization, and distributed systems.\",\n    \"status\": \"active\",\n    \"level\": \"advanced\",\n    \"creditHours\": 4,\n    \"orgId\": \"507f1f77bcf86cd799439011\",\n    \"facultyId\": \"507f1f77bcf86cd799439022\",\n    \"programId\": \"507f1f77bcf86cd799439033\",\n    \"categoryId\": \"507f1f77bcf86cd799439044\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/course",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "course"]
+				},
+				"description": "Create a new course with all optional relation fields included."
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Courses",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/course?document=true&pagination=true&count=true&page=1&limit=10&order=desc&sort=createdAt",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "course"],
+					"query": [
+						{
+							"key": "document",
+							"value": "true",
+							"description": "Include course documents in response"
+						},
+						{
+							"key": "pagination",
+							"value": "true",
+							"description": "Include pagination metadata"
+						},
+						{
+							"key": "count",
+							"value": "true",
+							"description": "Include total count"
+						},
+						{
+							"key": "page",
+							"value": "1",
+							"description": "Page number"
+						},
+						{
+							"key": "limit",
+							"value": "10",
+							"description": "Records per page (max 100)"
+						},
+						{
+							"key": "order",
+							"value": "desc",
+							"description": "Sort order: asc or desc"
+						},
+						{
+							"key": "sort",
+							"value": "createdAt",
+							"description": "Field to sort by"
+						}
+					]
+				},
+				"description": "Retrieve all courses with pagination, count, and document data."
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Courses (with search)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/course?document=true&pagination=true&count=true&page=1&limit=10&query=computer science",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "course"],
+					"query": [
+						{
+							"key": "document",
+							"value": "true"
+						},
+						{
+							"key": "pagination",
+							"value": "true"
+						},
+						{
+							"key": "count",
+							"value": "true"
+						},
+						{
+							"key": "page",
+							"value": "1"
+						},
+						{
+							"key": "limit",
+							"value": "10"
+						},
+						{
+							"key": "query",
+							"value": "computer science",
+							"description": "Search by title, code, or description"
+						}
+					]
+				},
+				"description": "Search courses by title, code, or description."
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Courses (with filter)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/course?document=true&pagination=true&count=true&page=1&limit=10&filter=[{\"status\":\"active\"},{\"level\":\"beginner\"}]",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "course"],
+					"query": [
+						{
+							"key": "document",
+							"value": "true"
+						},
+						{
+							"key": "pagination",
+							"value": "true"
+						},
+						{
+							"key": "count",
+							"value": "true"
+						},
+						{
+							"key": "page",
+							"value": "1"
+						},
+						{
+							"key": "limit",
+							"value": "10"
+						},
+						{
+							"key": "filter",
+							"value": "[{\"status\":\"active\"},{\"level\":\"beginner\"}]",
+							"description": "JSON array of filter objects"
+						}
+					]
+				},
+				"description": "Filter courses by status and level using advanced filter syntax."
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Courses (grouped by status)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/course?document=true&count=true&groupBy=status",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "course"],
+					"query": [
+						{
+							"key": "document",
+							"value": "true"
+						},
+						{
+							"key": "count",
+							"value": "true"
+						},
+						{
+							"key": "groupBy",
+							"value": "status",
+							"description": "Group results by field (e.g., status, level)"
+						}
+					]
+				},
+				"description": "Retrieve courses grouped by status field."
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Courses (field selection)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/course?document=true&count=true&fields=id,title,code,status,level,creditHours",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "course"],
+					"query": [
+						{
+							"key": "document",
+							"value": "true"
+						},
+						{
+							"key": "count",
+							"value": "true"
+						},
+						{
+							"key": "fields",
+							"value": "id,title,code,status,level,creditHours",
+							"description": "Comma-separated fields to include"
+						}
+					]
+				},
+				"description": "Retrieve courses with specific fields only."
+			},
+			"response": []
+		},
+		{
+			"name": "Get Course by ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/course/{{courseId}}",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "course", "{{courseId}}"]
+				},
+				"description": "Retrieve a single course by its MongoDB ObjectId."
+			},
+			"response": []
+		},
+		{
+			"name": "Get Course by ID (field selection)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/course/{{courseId}}?fields=id,title,code,description,status,level",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "course", "{{courseId}}"],
+					"query": [
+						{
+							"key": "fields",
+							"value": "id,title,code,description,status,level",
+							"description": "Comma-separated fields to include"
+						}
+					]
+				},
+				"description": "Retrieve a course by ID with specific fields only."
+			},
+			"response": []
+		},
+		{
+			"name": "Update Course",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"Introduction to Computer Science (Updated)\",\n    \"status\": \"active\",\n    \"level\": \"intermediate\",\n    \"creditHours\": 4\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/course/{{courseId}}",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "course", "{{courseId}}"]
+				},
+				"description": "Partial update of a course. Only include fields you want to change.\n\n**Updatable fields:** `title`, `code`, `description`, `status`, `level`, `creditHours`, `thumbnail`, `syllabus`, `version`, `facultyId`, `programId`, `categoryId`, `updatedBy`\n\n**Note:** `orgId` cannot be changed after creation."
+			},
+			"response": []
+		},
+		{
+			"name": "Update Course Status",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"status\": \"active\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/course/{{courseId}}",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "course", "{{courseId}}"]
+				},
+				"description": "Update only the course status.\n\nValid statuses: `draft`, `pending_approval`, `active`, `archived`"
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Course",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/course/{{courseId}}",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "course", "{{courseId}}"]
+				},
+				"description": "Permanently delete a course by ID."
+			},
+			"response": []
+		}
+	]
+}

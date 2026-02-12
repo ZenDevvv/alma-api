@@ -79,3 +79,12 @@ export const UpdateCourseSchema = CourseSchema.omit({
 }).partial();
 
 export type UpdateCourse = z.infer<typeof UpdateCourseSchema>;
+
+// Add Prerequisite Schema
+export const AddPrerequisiteSchema = z.object({
+	prerequisiteId: z.string().refine((val) => isValidObjectId(val), {
+		message: "Invalid prerequisite course ID format",
+	}),
+});
+
+export type AddPrerequisite = z.infer<typeof AddPrerequisiteSchema>;
