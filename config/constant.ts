@@ -165,6 +165,7 @@ export const config = {
 		SYSTEMLOG: createEntityErrors("SystemLog", "systemlog", "systemlogs"),
 		METRICS: createEntityErrors("Metrics", "metrics", "metrics"),
 		COURSE: createEntityErrors("Course", "course", "courses"),
+		CATEGORY: createEntityErrors("Category", "category", "categories"),
 		FACULTY: createEntityErrors("Faculty", "faculty", "faculties"),
 		PROGRAM: createEntityErrors("Program", "program", "programs"),
 		QUERY_PARAMS: {
@@ -238,6 +239,7 @@ export const config = {
 		SYSTEMLOG: createEntitySuccess("SystemLog", "SystemLogs", "systemlog"),
 		METRICS: createEntitySuccess("Metrics", "Metrics", "metrics"),
 		COURSE: createEntitySuccess("Course", "Courses", "course"),
+		CATEGORY: createEntitySuccess("Category", "Categories", "category"),
 		FACULTY: createEntitySuccess("Faculty", "Faculties", "faculty"),
 		PROGRAM: createEntitySuccess("Program", "Programs", "program"),
 	},
@@ -252,6 +254,7 @@ export const config = {
 		ROLE: createActivityLog("ROLE", "Role", "role"),
 		PERSON: createActivityLog("PERSON", "Person", "person"),
 		COURSE: createActivityLog("COURSE", "Course", "course"),
+		CATEGORY: createActivityLog("CATEGORY", "Category", "category"),
 		FACULTY: createActivityLog("FACULTY", "Faculty", "faculty"),
 		PROGRAM: createActivityLog("PROGRAM", "Program", "program"),
 		USER: {
@@ -326,7 +329,7 @@ export const config = {
 			DELIVERYREQUEST: "deliveryrequest",
 			DELIVERYREQUESTITEM: "deliveryrequestitem",
 			DELIVERYRECEIPTITEM: "deliveryreceiptitem",
-			CATEGORY: "category",
+			CATEGORY: "categories",
 			DELIVERY: "delivery",
 			ITEM: "item",
 			DELIVERYITEM: "deliveryitem",

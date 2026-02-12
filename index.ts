@@ -8,7 +8,11 @@ import openApiSpecs from "./docs/openApiSpecs";
 import verifyToken from "./middleware/verifyToken";
 import type { AuthRequest } from "./middleware/verifyToken";
 import { connectAllDatabases, disconnectAllDatabases } from "./config/database";
-import { securityMiddleware, devSecurityMiddleware, authSecurityMiddleware } from "./middleware/security";
+import {
+	securityMiddleware,
+	devSecurityMiddleware,
+	authSecurityMiddleware,
+} from "./middleware/security";
 import { hidePasswordMiddleware } from "./middleware/passwordSanitise";
 import { io, app, server } from "./lib/socket";
 import { templateModule } from "./app/template";
@@ -23,6 +27,7 @@ import { organizationModule } from "./app/organization";
 import { courseModule } from "./app/course";
 import { facultyModule } from "./app/faculty";
 import { programModule } from "./app/program";
+import { categoryModule } from "./app/category";
 
 // Log uncaught exceptions and unhandled promise rejections
 process.on("uncaughtException", (err) => {
@@ -86,6 +91,7 @@ try {
 	const course = courseModule(prisma);
 	const faculty = facultyModule(prisma);
 	const program = programModule(prisma);
+	const category = categoryModule(prisma);
 
 	// Health check endpoint
 	app.get("/", (req: Request, res: Response) => {
@@ -173,6 +179,7 @@ try {
 	app.use(config.baseApiPath, course);
 	app.use(config.baseApiPath, faculty);
 	app.use(config.baseApiPath, program);
+	app.use(config.baseApiPath, category);
 
 	server.listen(config.port, async () => {
 		await connectAllDatabases();
