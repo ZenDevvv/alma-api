@@ -1,9 +1,11 @@
 import seedSuperAdmin from "./seeds/superadmin.seed";
+import seedOrganizations from "./seeds/organization.seed";
 import { PrismaClient } from "../generated/prisma";
 const prisma = new PrismaClient();
 
 async function main() {
 	await seedSuperAdmin();
+	await seedOrganizations();
 
 	console.log("Seeding completed successfully!");
 }

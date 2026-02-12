@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { PrismaClient, Prisma } from "../../generated/prisma";
+import * as argon2 from "argon2";
 import { getLogger } from "../../helper/logger";
 import { transformFormDataToObject } from "../../helper/transformObject";
 import { validateQueryParams } from "../../helper/validation-helper";
@@ -54,6 +55,10 @@ export const controller = (prisma: PrismaClient) => {
 			const prismaData: Prisma.UserUncheckedCreateInput = {
 				...validation.data,
 			};
+
+			if (prismaData.password) {
+				prismaData.password = await argon2.hash(prismaData.password);
+			}
 
 			const user = await prisma.user.create({ data: prismaData });
 			userLogger.info(`User created successfully: ${user.id}`);

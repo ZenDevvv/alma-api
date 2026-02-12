@@ -34,7 +34,7 @@ async function seedSuperAdmin() {
 			userName: "superadmin",
 			password: hashedPassword,
 			role: "admin",
-			subRole: "superadmin",
+			subRole: ["superadmin"],
 			status: "active",
 			loginMethod: "email",
 			personId: person.id,
