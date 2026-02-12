@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { isValidObjectId } from "mongoose";
 import { OrganizationSchema } from "./organization.zod";
-import { CourseSchema } from "./course.zod";
+import { FacultySchema } from "./faculty.zod";
 
 export const ProgramStatus = z.enum(["active", "archived"]);
 
@@ -13,11 +13,13 @@ export const ProgramSchema = z.object({
 	status: ProgramStatus.default("active"),
 	totalUnits: z.number().int().optional(),
 	requirements: z.unknown().optional(),
+	// --- Foreign key IDs ---
 	orgId: z.string().refine((val) => isValidObjectId(val)),
 	facultyId: z
 		.string()
 		.refine((val) => isValidObjectId(val))
 		.optional(),
+
 	isDeleted: z.boolean(),
 	createdBy: z
 		.string()
@@ -30,19 +32,36 @@ export const ProgramSchema = z.object({
 	createdAt: z.coerce.date(),
 	updatedAt: z.coerce.date(),
 
-	// --- Relation fields (from Prisma model) ---
+	// --- Relation fields (only where this model owns the foreign key) ---
 	organization: OrganizationSchema.optional(),
-	courses: z.array(CourseSchema).optional(),
+	faculty: FacultySchema.optional(),
 });
 
 export type Program = z.infer<typeof ProgramSchema>;
+
+export const PaginationSchema = z.object({
+	total: z.number(),
+	page: z.number(),
+	limit: z.number(),
+	totalPages: z.number(),
+	hasNext: z.boolean(),
+	hasPrev: z.boolean(),
+});
+
+export const GetAllProgramsSchema = z.object({
+	programs: z.array(ProgramSchema),
+	pagination: PaginationSchema.optional(),
+	count: z.number().optional(),
+});
+
+export type GetAllPrograms = z.infer<typeof GetAllProgramsSchema>;
 
 export const CreateProgramSchema = ProgramSchema.omit({
 	id: true,
 	createdAt: true,
 	updatedAt: true,
 	organization: true,
-	courses: true,
+	faculty: true,
 }).partial({
 	description: true,
 	status: true,
@@ -64,7 +83,7 @@ export const UpdateProgramSchema = ProgramSchema.omit({
 	isDeleted: true,
 	createdBy: true,
 	organization: true,
-	courses: true,
+	faculty: true,
 }).partial();
 
 export type UpdateProgram = z.infer<typeof UpdateProgramSchema>;

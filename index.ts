@@ -22,6 +22,7 @@ import { metricsModule } from "./app/metrics";
 import { organizationModule } from "./app/organization";
 import { courseModule } from "./app/course";
 import { facultyModule } from "./app/faculty";
+import { programModule } from "./app/program";
 
 // Log uncaught exceptions and unhandled promise rejections
 process.on("uncaughtException", (err) => {
@@ -84,6 +85,7 @@ try {
 	const organization = organizationModule(prisma);
 	const course = courseModule(prisma);
 	const faculty = facultyModule(prisma);
+	const program = programModule(prisma);
 
 	// Health check endpoint
 	app.get("/", (req: Request, res: Response) => {
@@ -170,6 +172,7 @@ try {
 	app.use(config.baseApiPath, organization);
 	app.use(config.baseApiPath, course);
 	app.use(config.baseApiPath, faculty);
+	app.use(config.baseApiPath, program);
 
 	server.listen(config.port, async () => {
 		await connectAllDatabases();

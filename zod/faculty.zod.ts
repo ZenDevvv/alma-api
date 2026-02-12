@@ -1,8 +1,6 @@
 import { z } from "zod";
 import { isValidObjectId } from "mongoose";
 import { OrganizationSchema } from "./organization.zod";
-import { CourseSchema } from "./course.zod";
-import { ProgramSchema } from "./program.zod";
 
 export const FacultyStatus = z.enum(["active", "archived"]);
 
@@ -26,10 +24,8 @@ export const FacultySchema = z.object({
 	createdAt: z.coerce.date(),
 	updatedAt: z.coerce.date(),
 
-	// --- Relation fields (from Prisma model) ---
+	// --- Relation fields (only where this model owns the foreign key) ---
 	organization: OrganizationSchema.optional(),
-	courses: z.array(CourseSchema).optional(),
-	programs: z.array(ProgramSchema).optional(),
 });
 
 export type Faculty = z.infer<typeof FacultySchema>;
@@ -56,8 +52,6 @@ export const CreateFacultySchema = FacultySchema.omit({
 	createdAt: true,
 	updatedAt: true,
 	organization: true,
-	courses: true,
-	programs: true,
 }).partial({
 	description: true,
 	status: true,
@@ -76,8 +70,6 @@ export const UpdateFacultySchema = FacultySchema.omit({
 	isDeleted: true,
 	createdBy: true,
 	organization: true,
-	courses: true,
-	programs: true,
 }).partial();
 
 export type UpdateFaculty = z.infer<typeof UpdateFacultySchema>;

@@ -166,6 +166,7 @@ export const config = {
 		METRICS: createEntityErrors("Metrics", "metrics", "metrics"),
 		COURSE: createEntityErrors("Course", "course", "courses"),
 		FACULTY: createEntityErrors("Faculty", "faculty", "faculties"),
+		PROGRAM: createEntityErrors("Program", "program", "programs"),
 		QUERY_PARAMS: {
 			INVALID_ID: "Invalid ID",
 			MISSING_ID: "ID parameter is required",
@@ -238,6 +239,7 @@ export const config = {
 		METRICS: createEntitySuccess("Metrics", "Metrics", "metrics"),
 		COURSE: createEntitySuccess("Course", "Courses", "course"),
 		FACULTY: createEntitySuccess("Faculty", "Faculties", "faculty"),
+		PROGRAM: createEntitySuccess("Program", "Programs", "program"),
 	},
 
 	ACTIVITY_LOG: {
@@ -251,6 +253,7 @@ export const config = {
 		PERSON: createActivityLog("PERSON", "Person", "person"),
 		COURSE: createActivityLog("COURSE", "Course", "course"),
 		FACULTY: createActivityLog("FACULTY", "Faculty", "faculty"),
+		PROGRAM: createActivityLog("PROGRAM", "Program", "program"),
 		USER: {
 			...createActivityLog("USER", "User", "user"),
 			ACTIONS: {
@@ -345,6 +348,7 @@ export const config = {
 			APPROVAL: "approval",
 			COURSE: "courses",
 			FACULTY: "faculties",
+			PROGRAM: "programs",
 		},
 		SEVERITY: {
 			LOW: "LOW" as const,
@@ -394,6 +398,7 @@ export const config = {
 			APPROVAL: "approval",
 			COURSE: "course",
 			FACULTY: "faculty",
+			PROGRAM: "program",
 		},
 		PERSON: createAuditLogEntity("person"),
 		ROLE: createAuditLogEntity("role"),
@@ -447,6 +452,7 @@ export const config = {
 		APPROVAL: createAuditLogEntity("approval"),
 		COURSE: createAuditLogEntity("course"),
 		FACULTY: createAuditLogEntity("faculty"),
+		PROGRAM: createAuditLogEntity("program"),
 		TEMPLATE: {
 			DESCRIPTIONS: {
 				...createAuditLogEntity("template").DESCRIPTIONS,
