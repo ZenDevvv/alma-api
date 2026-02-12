@@ -108,16 +108,40 @@ npx prisma generate
 
 File: `zod/[entity].zod.ts`
 
+### Relation Fields Rule
+
+The full entity schema (`__Entity__Schema`) **must include all relation fields** from the Prisma model as **optional** Zod fields. This ensures the inferred TypeScript type (`__Entity__`) always carries the relation types, which is useful when the API returns populated/included relations.
+
+**How to apply:**
+
+1. Look at the Prisma model for the entity and identify all **relation fields** (fields with `@relation` or array relations like `RelatedModel[]`).
+2. For each **belongs-to** relation (e.g. `person Person? @relation(...)`), add the related entity's Zod schema as an optional field in the full schema. Import the related schema from its Zod file.
+3. For each **has-many** relation (e.g. `enrollments Enrollment[] @relation(...)`), add `z.array(RelatedSchema).optional()` in the full schema. Only add has-many relations that are commonly returned by the API; skip internal/audit relations like `activityLogs` and `auditLogs`.
+4. **If the related model's Zod file does not exist yet, create it first.** Look up the related Prisma model in `prisma/schema/[related].prisma` and generate the full Zod file at `zod/[related].zod.ts` following the same Step 2 conventions (full schema, create schema, update schema, enums, composite types). This ensures the import will resolve. Recursively apply this rule — if *that* model also has relations whose Zod files are missing, create those too before proceeding.
+5. In `Create__Entity__Schema` and `Update__Entity__Schema`, **omit all relation fields** — they are managed by foreign key IDs, not by passing nested objects.
+
 ```typescript
 import { z } from "zod";
 import { isValidObjectId } from "mongoose";
+// Import related entity schemas for relation fields
+import { __Related__Schema } from "./__related__.zod";
 
-// Full schema (includes all fields)
+// Full schema (includes all fields + relation fields)
 export const __Entity__Schema = z.object({
 	id: z.string().refine((val) => isValidObjectId(val)),
 	name: z.string().min(1),
 	description: z.string().optional(),
 	// ... match Prisma model fields ...
+
+	// --- Foreign key IDs ---
+	__related__Id: z.string().refine((val) => isValidObjectId(val)).optional(),
+
+	// --- Relation fields (from Prisma model) ---
+	// Belongs-to relations: use the related entity's schema, marked optional
+	__related__: __Related__Schema.optional(),
+	// Has-many relations: use z.array() of the related schema, marked optional
+	// __relatedPlural__: z.array(__Related__Schema).optional(),
+
 	isDeleted: z.boolean(),
 	createdAt: z.coerce.date(),
 	updatedAt: z.coerce.date(),
@@ -125,11 +149,13 @@ export const __Entity__Schema = z.object({
 
 export type __Entity__ = z.infer<typeof __Entity__Schema>;
 
-// Create schema — omit auto-generated fields, mark optional fields as partial
+// Create schema — omit auto-generated fields AND relation fields
 export const Create__Entity__Schema = __Entity__Schema.omit({
 	id: true,
 	createdAt: true,
 	updatedAt: true,
+	// Omit all relation fields — use foreign key IDs instead
+	__related__: true,
 }).partial({
 	description: true,
 	isDeleted: true,
@@ -137,15 +163,83 @@ export const Create__Entity__Schema = __Entity__Schema.omit({
 
 export type Create__Entity__ = z.infer<typeof Create__Entity__Schema>;
 
-// Update schema — partial, exclude immutable fields
+// Update schema — partial, exclude immutable fields AND relation fields
 export const Update__Entity__Schema = __Entity__Schema.omit({
 	id: true,
 	createdAt: true,
 	updatedAt: true,
 	isDeleted: true,
+	// Omit all relation fields — use foreign key IDs instead
+	__related__: true,
 }).partial();
 
 export type Update__Entity__ = z.infer<typeof Update__Entity__Schema>;
+
+// ─── Pagination Schema (shared across modules) ──────────────────────
+
+export const PaginationSchema = z.object({
+	total: z.number(),
+	page: z.number(),
+	limit: z.number(),
+	totalPages: z.number(),
+	hasNext: z.boolean(),
+	hasPrev: z.boolean(),
+});
+
+// GetAll schema — represents the shape returned by the getAll API response
+export const GetAll__Entities__Schema = z.object({
+	__entities__: z.array(__Entity__Schema),
+	pagination: PaginationSchema.optional(),
+	count: z.number().optional(),
+});
+
+export type GetAll__Entities__ = z.infer<typeof GetAll__Entities__Schema>;
+```
+
+> **Note:** `PaginationSchema` is a shared schema. If it already exists in another Zod file in your project, import it from there instead of redefining it. Otherwise, define it in the module's Zod file or in a shared `zod/common.zod.ts`.
+
+**Example — User entity with `person` and `organization` relations:**
+
+```typescript
+import { PersonSchema } from "./person.zod";
+import { OrganizationSchema } from "./organization.zod";
+
+export const UserSchema = z.object({
+	// ... scalar fields ...
+	personId: z.string().refine((val) => isValidObjectId(val)).optional(),
+	orgId: z.string().refine((val) => isValidObjectId(val)).optional(),
+
+	// Relation fields
+	person: PersonSchema.optional(),
+	organization: OrganizationSchema.optional(),
+
+	// ... audit fields ...
+});
+
+export const CreateUserSchema = UserSchema.omit({
+	id: true,
+	createdAt: true,
+	updatedAt: true,
+	person: true,          // omit relation
+	organization: true,    // omit relation
+}).partial({ /* ... */ });
+
+export const UpdateUserSchema = UserSchema.omit({
+	id: true,
+	createdAt: true,
+	updatedAt: true,
+	isDeleted: true,
+	person: true,          // omit relation
+	organization: true,    // omit relation
+}).partial();
+
+export const GetAllUsersSchema = z.object({
+	users: z.array(UserSchema),
+	pagination: PaginationSchema.optional(),
+	count: z.number().optional(),
+});
+
+export type GetAllUsers = z.infer<typeof GetAllUsersSchema>;
 ```
 
 ---
@@ -914,6 +1008,8 @@ Use this checklist when creating a new module:
 - [ ] **[entity].router.ts** — routes with OpenAPI docs and cache middleware
 - [ ] **[entity].controller.ts** — CRUD with validation, logging, caching, audit
 - [ ] **Module registered** in root `index.ts` (import, initialize, `app.use`)
+- [ ] **Relation fields** included in full Zod schema (optional), omitted in Create/Update schemas
+- [ ] **GetAll schema** created with `z.array(EntitySchema)`, optional `pagination`, and optional `count`
 - [ ] **Search fields** updated in `getAll` controller to match entity's searchable fields
 - [ ] **Audit `changesAfter`** in `create` includes the entity's key fields
 
