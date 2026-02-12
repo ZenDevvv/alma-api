@@ -1,4 +1,4 @@
-# ALMA API — Module Template Guide
+# {projectName} API — Module Template Guide
 
 This document is a **prompt-ready reference** for generating new API modules. Every new entity module **must** follow the standard 3-file pattern (`index.ts`, `[entity].router.ts`, `[entity].controller.ts`) plus supporting files (Zod schema, constant config entries, route registration).
 
@@ -44,7 +44,7 @@ Use this guide as a copy-paste scaffold — replace all `__Entity__` placeholder
 ## File Structure
 
 ```
-alma-api/
+{projectName}-api/
 ├── app/
 │   └── [entity]/
 │       ├── index.ts                  # Module entry — wires router + controller
@@ -1030,3 +1030,4 @@ When using this guide as a prompt, do a **find-and-replace** with these tokens:
 | `__entities__` | camelCase plural | `courses` |
 | `__Entities__` | PascalCase plural | `Courses` |
 | `__ENTITY_UPPER__` | UPPER_SNAKE_CASE | `COURSE` |
+| `{projectName}` | Your project name | `alma`, `epp`, `myapp` — backend is `{projectName}-api`, frontend is `{projectName}-app` |
