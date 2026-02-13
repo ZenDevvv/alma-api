@@ -34,6 +34,8 @@ Use this guide as a copy-paste scaffold — replace all `__Entity__` placeholder
 | Zod full schema | `[Entity]Schema` | `CourseSchema` |
 | Zod create schema | `Create[Entity]Schema` | `CreateCourseSchema` |
 | Zod update schema | `Update[Entity]Schema` | `UpdateCourseSchema` |
+| Zod getAll schema | `GetAll[Entities]Schema` | `GetAllCoursesSchema` |
+| Zod getAll type | `GetAll[Entities]` | `GetAllCourses` |
 | Logger child | `{ module: "[entity]" }` | `{ module: "course" }` |
 | API path | `/[entity]` (singular lowercase) | `/course` |
 | Cache keys | `cache:[entity]:byId:${id}:*`, `cache:[entity]:list:*` | `cache:course:byId:${id}:*` |
