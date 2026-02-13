@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { isValidObjectId } from "mongoose";
+import { PaginationSchema } from "./common.zod";
 
-// Organization Schema (full, including ID)
 export const OrganizationSchema = z.object({
 	id: z.string().refine((val) => isValidObjectId(val)),
 	name: z.string().min(1),
@@ -16,7 +16,14 @@ export const OrganizationSchema = z.object({
 
 export type Organization = z.infer<typeof OrganizationSchema>;
 
-// Create Organization Schema (excluding ID, createdAt, updatedAt, and computed fields)
+export const GetAllOrganizationsSchema = z.object({
+	organizations: z.array(OrganizationSchema),
+	pagination: PaginationSchema.optional(),
+	count: z.number().optional(),
+});
+
+export type GetAllOrganizations = z.infer<typeof GetAllOrganizationsSchema>;
+
 export const CreateOrganizationSchema = OrganizationSchema.omit({
 	id: true,
 	createdAt: true,
@@ -30,7 +37,6 @@ export const CreateOrganizationSchema = OrganizationSchema.omit({
 
 export type CreateOrganization = z.infer<typeof CreateOrganizationSchema>;
 
-// Update Organization Schema (partial, excluding immutable fields)
 export const UpdateOrganizationSchema = OrganizationSchema.omit({
 	id: true,
 	createdAt: true,

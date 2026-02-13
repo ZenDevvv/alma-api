@@ -2,6 +2,7 @@ import { z } from "zod";
 import { isValidObjectId } from "mongoose";
 import { OrganizationSchema } from "./organization.zod";
 import { FacultySchema } from "./faculty.zod";
+import { PaginationSchema } from "./common.zod";
 
 export const ProgramStatus = z.enum(["active", "archived"]);
 
@@ -38,15 +39,6 @@ export const ProgramSchema = z.object({
 });
 
 export type Program = z.infer<typeof ProgramSchema>;
-
-export const PaginationSchema = z.object({
-	total: z.number(),
-	page: z.number(),
-	limit: z.number(),
-	totalPages: z.number(),
-	hasNext: z.boolean(),
-	hasPrev: z.boolean(),
-});
 
 export const GetAllProgramsSchema = z.object({
 	programs: z.array(ProgramSchema),

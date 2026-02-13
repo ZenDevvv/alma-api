@@ -51,6 +51,7 @@ Use this guide as a copy-paste scaffold — replace all `__Entity__` placeholder
 │       ├── [entity].router.ts        # Route definitions + OpenAPI docs + cache
 │       └── [entity].controller.ts    # CRUD business logic
 ├── zod/
+│   ├── common.zod.ts                # Shared schemas (PaginationSchema, etc.)
 │   └── [entity].zod.ts              # Zod validation schemas
 ├── prisma/
 │   └── schema/
@@ -132,6 +133,8 @@ import { z } from "zod";
 import { isValidObjectId } from "mongoose";
 // Import related entity schemas for relation fields
 import { __Related__Schema } from "./__related__.zod";
+// Import shared PaginationSchema
+import { PaginationSchema } from "./common.zod";
 
 // Full schema (includes all fields + relation fields)
 export const __Entity__Schema = z.object({
@@ -179,17 +182,6 @@ export const Update__Entity__Schema = __Entity__Schema.omit({
 
 export type Update__Entity__ = z.infer<typeof Update__Entity__Schema>;
 
-// ─── Pagination Schema (shared across modules) ──────────────────────
-
-export const PaginationSchema = z.object({
-	total: z.number(),
-	page: z.number(),
-	limit: z.number(),
-	totalPages: z.number(),
-	hasNext: z.boolean(),
-	hasPrev: z.boolean(),
-});
-
 // GetAll schema — represents the shape returned by the getAll API response
 export const GetAll__Entities__Schema = z.object({
 	__entities__: z.array(__Entity__Schema),
@@ -200,7 +192,7 @@ export const GetAll__Entities__Schema = z.object({
 export type GetAll__Entities__ = z.infer<typeof GetAll__Entities__Schema>;
 ```
 
-> **Note:** `PaginationSchema` is a shared schema. If it already exists in another Zod file in your project, import it from there instead of redefining it. Otherwise, define it in the module's Zod file or in a shared `zod/common.zod.ts`.
+> **Note:** `PaginationSchema` is defined once in `zod/common.zod.ts`. Always import it from there — never redefine it in entity Zod files.
 
 **Example — User entity with `person` and `organization` relations:**
 

@@ -2,6 +2,7 @@ import { z } from "zod";
 import { isValidObjectId } from "mongoose";
 import { PersonSchema } from "./person.zod";
 import { OrganizationSchema } from "./organization.zod";
+import { PaginationSchema } from "./common.zod";
 
 // ─── Enums matching Prisma ───────────────────────────────────────────
 
@@ -60,17 +61,6 @@ export const UserSchema = z.object({
 });
 
 export type User = z.infer<typeof UserSchema>;
-
-// ─── Pagination Schema ──────────────────────────────────────────────
-
-export const PaginationSchema = z.object({
-	total: z.number(),
-	page: z.number(),
-	limit: z.number(),
-	totalPages: z.number(),
-	hasNext: z.boolean(),
-	hasPrev: z.boolean(),
-});
 
 // ─── GetAll Schema ──────────────────────────────────────────────────
 
